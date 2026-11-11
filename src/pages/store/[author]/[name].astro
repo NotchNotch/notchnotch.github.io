@@ -1,0 +1,107 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { LinkButton } from "@astrojs/starlight/components";
+import { Marked } from "marked";
+import catalog from "../../../data/catalog.json";
+
+export function getStaticPaths() {
+  return catalog.extensions.map((entry) => {
+    const [author, name] = entry.handle.split("/");
+    return { params: { author, name }, props: { entry } };
+  });
+}
+
+const { entry } = Astro.props;
+const { manifest } = entry;
+const [author] = entry.handle.split("/");
+
+/** README text comes from contributors: no raw HTML, only web and relative links. */
+function render(markdown, base) {
+  const escape = (text) => text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+  const safe = (href) => {
+    try {
+      const url = new URL(href, base);
+      return ["https:", "http:", "mailto:"].includes(url.protocol) ? url.href : null;
+    } catch { return null; }
+  };
+  const marked = new Marked({
+    renderer: {
+      html: ({ text }) => escape(text),
+      link({ href, title, tokens }) {
+        const target = safe(href); const label = this.parser.parseInline(tokens);
+        return target ? `<a href="${escape(target)}"${title ? ` title="${escape(title)}"` : ""} rel="nofollow noopener">${label}</a>` : label;
+      },
+      image({ href, text }) {
+        const target = safe(href);
+        return target ? `<img src="${escape(target)}" alt="${escape(text)}" loading="lazy">` : escape(text);
+      },
+    },
+  });
+  // The page already shows the name; drop a leading heading that repeats it.
+  return marked.parse(markdown.replace(/^#\s+.*\n+/, ""));
+}
+
+const readme = entry.readmeText ? render(entry.readmeText, entry.readme) : "";
+const reaches = [
+  ...(manifest.network ?? []).map((host) => ({ kind: "Website", value: host })),
+  ...(manifest.imageHosts ?? []).map((host) => ({ kind: "Pictures from", value: host })),
+  ...Object.entries(manifest.connections ?? {}).map(([name, item]) => item.transport === "stdio"
+    ? { kind: "Native tool", value: `${name} (${item.executable})` }
+    : { kind: "Local service", value: item.endpoint ?? name }),
+];
+const secrets = (manifest.preferences ?? []).filter((item) => item.type === "password").map((item) => item.title);
+const published = entry.published ? new Date(entry.published).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
+---
+
+<StarlightPage frontmatter={{ title: manifest.name, description: manifest.description, tableOfContents: false }}>
+  <div class="header">
+    {entry.icon && <img class="icon" src={entry.icon} width="96" height="96" alt="" />}
+    <div>
+      <p class="lead">{manifest.description}</p>
+      <p class="meta">
+        by <a href={`https://github.com/${author}`}>{author}</a> · Version {manifest.version}
+        {published && <> · {published}</>}
+        {(manifest.categories ?? []).length > 0 && <> · {manifest.categories.join(", ")}</>}
+      </p>
+      <div class="actions">
+        <LinkButton href={`notchnotch://extensions/${entry.handle}`} icon="download">Open in NotchNotch</LinkButton>
+        {manifest.repository && <LinkButton href={manifest.repository} variant="secondary" icon="github">Source</LinkButton>}
+      </div>
+      <p class="fine">Opens this extension in the app's Store, where you review and install it. Needs NotchNotch {entry.minimumAppVersion ?? "0.7.0"} or later. <a href="/#install">Get NotchNotch</a></p>
+    </div>
+  </div>
+
+  {(entry.screenshots ?? []).length > 0 && (
+    <div class="shots">
+      {entry.screenshots.map((url, index) => <img src={url} width="2000" height="1250" alt={`${manifest.name} in the notch, screenshot ${index + 1}`} loading={index ? "lazy" : "eager"} />)}
+    </div>
+  )}
+
+  <h2>What it can reach</h2>
+  {reaches.length === 0 && secrets.length === 0 ? (
+    <p>Nothing outside NotchNotch: no websites, apps or services.</p>
+  ) : (
+    <ul>
+      {reaches.map((item) => <li><strong>{item.kind}:</strong> <code>{item.value}</code></li>)}
+      {secrets.length > 0 && <li><strong>Kept in your Keychain:</strong> {secrets.join(", ")}</li>}
+    </ul>
+  )}
+  <p class="fine">The app shows this again before installing, and asks again if an update wants anything new.</p>
+
+  {readme && (<><h2>About</h2><div class="readme" set:html={readme} /></>)}
+
+  {entry.changelog && <p><a href={entry.changelog}>Version history</a></p>}
+</StarlightPage>
+
+<style>
+  .header { display: flex; gap: 1.5rem; align-items: flex-start; }
+  .icon { width: 96px; height: 96px; border-radius: 22px; flex: none; }
+  .lead { font-size: var(--sl-text-lg); color: var(--sl-color-white); margin: 0; }
+  .meta { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+  .fine { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
+  .shots { display: grid; gap: 1rem; margin-top: 2rem; }
+  .shots img { width: 100%; height: auto; border-radius: 0.9rem; }
+  .readme :global(img) { max-width: 100%; height: auto; }
+  @media (max-width: 40rem) { .header { flex-direction: column; } }
+</style>

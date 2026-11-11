@@ -1,0 +1,73 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import { Card, CardGrid, Code, LinkButton } from "@astrojs/starlight/components";
+import ExtensionCard from "../components/ExtensionCard.astro";
+import release from "../data/release.json";
+import catalog from "../data/catalog.json";
+
+const showcase = ["sadeqi-ah/focus-timer", "sadeqi-ah/weather", "sadeqi-ah/hacker-news", "sadeqi-ah/moon-phase"]
+  .map((handle) => catalog.extensions.find((entry) => entry.handle === handle))
+  .filter(Boolean);
+const hero = catalog.extensions.find((entry) => entry.handle === "sadeqi-ah/focus-timer")?.screenshots?.[0];
+---
+
+<StarlightPage
+  frontmatter={{
+    title: "NotchNotch",
+    description: "The notch on your Mac, put to work. Music, calendar, timers and extensions you build in React.",
+    template: "splash",
+    hero: { title: "The notch on your Mac, put to work.", tagline: "NotchNotch shows what's happening now around the camera: the song that's playing, your next meeting, a running timer, or anything an extension adds." },
+  }}
+  hasSidebar={false}
+>
+  <div class="actions">
+    <LinkButton href={release.url} icon="download">Download {release.version}</LinkButton>
+    <LinkButton href="/store/" variant="secondary">Browse the Store</LinkButton>
+    <LinkButton href="/docs/extensions/getting-started/" variant="minimal" icon="right-arrow">Build an extension</LinkButton>
+  </div>
+  <p class="fine">Developer preview for macOS 14 or later. Free and open source.</p>
+
+  {hero && (
+    <figure class="hero-shot">
+      <img src={hero} width="2000" height="1250" alt="The notch expanded, showing a focus timer at 17:38 with Pause and Stop buttons." />
+    </figure>
+  )}
+
+  <h2>What it does</h2>
+  <CardGrid>
+    <Card title="Music" icon="star">What's playing in Spotify or Apple Music, with artwork and playback controls.</Card>
+    <Card title="Calendar" icon="clock">Your next event with a countdown and a button to join the meeting.</Card>
+    <Card title="Extensions" icon="puzzle">Timers, weather, notifications and more from the Store, each reviewed and signed.</Card>
+    <Card title="Private" icon="padlock">No account, no analytics. Everything stays on your Mac. <a href="/privacy/">Privacy policy</a></Card>
+  </CardGrid>
+
+  <h2>From the Store</h2>
+  <div class="grid">
+    {showcase.map((entry) => <ExtensionCard entry={entry} />)}
+  </div>
+  <p><a href="/store/">All {catalog.extensions.length} extensions →</a></p>
+
+  <h2 id="install">Install</h2>
+  <ol class="steps">
+    <li>Download <a href={release.url}><code>NotchNotch-{release.version}.dmg</code></a>, open it and drag <strong>NotchNotch</strong> to <strong>Applications</strong>.</li>
+    <li>Open NotchNotch. This preview isn't notarized by Apple yet, so macOS stops it the first time.</li>
+    <li>Open <strong>System Settings › Privacy &amp; Security</strong>, scroll down and choose <strong>Open Anyway</strong> next to <em>"NotchNotch" was blocked</em>. Confirm with your password.</li>
+  </ol>
+  <p>After that NotchNotch updates itself. The <a href="/docs/guide/using-notchnotch/">guide</a> shows how to connect Music and Calendar.</p>
+
+  <h2>Build an extension</h2>
+  <p>Extensions are React and TypeScript. NotchNotch draws them natively, runs each one in its own sandboxed process, and shows you what it can reach before you install it.</p>
+
+  <Code lang="sh" code={"npm create notchnotch-extension@latest my-extension\ncd my-extension && npm install && npx notchnotch dev"} />
+
+  <p>When it's ready, <code>npx notchnotch publish</code> submits it to the Store. <a href="/docs/extensions/getting-started/">Getting started</a> · <a href="/docs/extensions/publishing/">Publishing</a></p>
+</StarlightPage>
+
+<style>
+  .actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
+  .fine { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 0.75rem; }
+  .hero-shot { margin: 2.5rem 0 1rem; }
+  .hero-shot img { width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.6); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
+  .steps li { margin-bottom: 0.5rem; }
+</style>

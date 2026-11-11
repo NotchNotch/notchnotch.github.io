@@ -1,0 +1,19 @@
+/* NotchNotch is black and white; the Store wallpaper's gradient is the one accent. */
+:root {
+  --nn-gradient: linear-gradient(135deg, #29336b 0%, #6b458c 50%, #db857a 100%);
+  --sl-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", system-ui, sans-serif;
+  --sl-font-system-mono: "SF Mono", ui-monospace, Menlo, monospace;
+}
+:root[data-theme="dark"] {
+  --sl-color-accent-low: #2a2340;
+  --sl-color-accent: #b9a3ff;
+  --sl-color-accent-high: #e6dcff;
+  --sl-color-black: #000;
+  --sl-color-gray-6: #111;
+}
+:root[data-theme="light"] {
+  --sl-color-accent-low: #ece6ff;
+  --sl-color-accent: #5b3fc4;
+  --sl-color-accent-high: #2c1d6b;
+}
+.site-title img { width: 1.6rem; height: 1.6rem; }

@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.cache/
+.DS_Store
+# Brought in by scripts/sync.mjs
+src/content/docs/docs/
+src/content/docs/changelog.md
+src/content/docs/privacy.md
+src/content/docs/security.md
+src/data/

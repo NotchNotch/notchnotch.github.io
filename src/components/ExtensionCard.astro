@@ -1,0 +1,33 @@
+---
+interface Props {
+  entry: { handle: string; icon?: string; manifest: { name: string; description: string; categories?: string[] } };
+}
+const { entry } = Astro.props;
+const [author] = entry.handle.split("/");
+---
+
+<a class="card" href={`/store/${entry.handle}/`} data-search={`${entry.manifest.name} ${entry.manifest.description} ${author} ${(entry.manifest.categories ?? []).join(" ")}`.toLowerCase()}
+   data-categories={(entry.manifest.categories ?? []).join("|")}>
+  {entry.icon ? <img src={entry.icon} width="56" height="56" alt="" /> : <span class="placeholder" />}
+  <span class="text">
+    <strong>{entry.manifest.name}</strong>
+    <span class="description">{entry.manifest.description}</span>
+    <span class="author">{author}</span>
+  </span>
+</a>
+
+<style>
+  .card {
+    display: flex; gap: 0.9rem; align-items: flex-start; padding: 1rem;
+    border: 1px solid var(--sl-color-hairline); border-radius: 0.9rem;
+    text-decoration: none; color: inherit; background: var(--sl-color-bg-nav);
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .card:hover { border-color: var(--sl-color-gray-4); transform: translateY(-1px); }
+  img, .placeholder { width: 56px; height: 56px; border-radius: 13px; flex: none; }
+  .placeholder { background: var(--nn-gradient); }
+  .text { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
+  strong { color: var(--sl-color-white); }
+  .description { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); line-height: 1.4; }
+  .author { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+</style>
