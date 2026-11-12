@@ -1,0 +1,85 @@
+---
+// A still notch in one presentation, for the cards that explain them.
+// Same silhouette and sizes as the hero, at a smaller scale.
+interface Props { variant: "idle" | "compact" | "peek" | "expanded" | "prompt" | "switcher" }
+const { variant } = Astro.props;
+const size = {
+  idle: [184, 32, 0, 12], compact: [244, 32, 5, 12], peek: [320, 78, 18, 22],
+  expanded: [384, 128, 28, 34], prompt: [384, 132, 28, 34], switcher: [384, 112, 28, 34],
+}[variant];
+---
+
+<div class="mini" data-v={variant} style={`--w:${size[0]}px;--h:${size[1]}px;--shoulder:${size[2]}px;--r:${size[3]}px`}>
+  <div class="body">
+    {variant === "compact" && (
+      <div class="wings"><span class="l"><svg viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="cam"></span><span class="r">24:12</span></div>
+    )}
+    {variant === "peek" && (<>
+      <div class="wings"><span class="l"><i class="art"></i></span><span class="cam"></span><span class="r"><span class="wave"><i></i><i></i><i></i><i></i></span></span></div>
+      <p class="peek">Midnight Drive</p>
+    </>)}
+    {variant === "expanded" && (
+      <div class="x">
+        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="xrow"><span class="cap">WEATHER</span><span class="badge">Berlin</span></div>
+        <div class="xbig">14°<small>Partly cloudy · H 16° L 9°</small></div>
+      </div>
+    )}
+    {variant === "prompt" && (
+      <div class="x">
+        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="ask"><span class="ico"></span><span><b>Time for a break?</b><small>Break Reminder</small></span></div>
+        <div class="btns"><span>In 10 Minutes</span><span class="on">Done</span></div>
+      </div>
+    )}
+    {variant === "switcher" && (
+      <div class="x">
+        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="xrow"><span class="cap">GITHUB</span><span class="badge blue">3 unread</span></div>
+        <div class="pg"><i></i><i class="on"></i><i></i><i></i></div>
+      </div>
+    )}
+  </div>
+</div>
+
+<style>
+  .mini {
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: var(--w); height: var(--h); zoom: var(--mz, 0.78); color: #fff; font-family: var(--font);
+  }
+  .mini::before, .mini::after { content: ""; position: absolute; top: 0; width: var(--shoulder); height: var(--shoulder); }
+  .mini::before { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .mini::after { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .body { position: absolute; inset: 0; background: #000; border-radius: 0 0 var(--r) var(--r); overflow: hidden; box-shadow: 0 7px 16px rgb(0 0 0 / 0.3); }
+  .wings { height: 32px; display: flex; align-items: center; }
+  .wings .l, .wings .r { flex: 1; display: flex; justify-content: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .wings svg { width: 13px; height: 13px; }
+  .cam { width: 184px; }
+  .art { display: block; width: 15px; height: 15px; border-radius: 3.3px; background: radial-gradient(circle at 50% 58%, #ffcf6e 0 19%, transparent 20%), linear-gradient(180deg, #ff8a3d, #e0453a 46%, #2a1a3a 47%, #14243d); }
+  .wave { display: flex; gap: 2px; align-items: center; height: 14px; }
+  .wave i { width: 2px; height: 9px; border-radius: 2px; background: #ffa65c; animation: w 0.8s ease-in-out infinite alternate; }
+  .wave i:nth-child(2n) { animation-delay: -0.4s; }
+  @keyframes w { from { height: 4px; } to { height: 12px; } }
+  .peek { margin: 0; height: 46px; display: grid; place-items: center; font-size: 14px; font-weight: 600; color: rgb(255 255 255 / 0.65); }
+  .x { display: flex; flex-direction: column; }
+  .hdr { height: 40px; padding: 0 24px; display: flex; align-items: center; }
+  .dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
+  .dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
+  .xrow { display: flex; align-items: center; padding: 0 28px; }
+  .cap { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: rgb(255 255 255 / 0.55); }
+  .badge { margin-left: auto; height: 20px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 600; background: rgb(255 255 255 / 0.12); }
+  .badge.blue { background: rgb(47 140 255 / 0.2); color: #8fc0ff; }
+  .xbig { padding: 4px 28px 0; font-family: var(--font-rounded); font-size: 34px; font-weight: 300; display: flex; align-items: baseline; gap: 10px; }
+  .xbig small { font-family: var(--font); font-size: 13px; font-weight: 400; color: rgb(255 255 255 / 0.55); }
+  .ask { display: flex; gap: 10px; align-items: center; padding: 0 28px; }
+  .ask .ico { width: 26px; height: 26px; border-radius: 7px; background: linear-gradient(#4cd964, #28a745); }
+  .ask b { display: block; font-size: 14px; font-weight: 600; }
+  .ask small { display: block; font-size: 11px; font-weight: 600; color: rgb(255 255 255 / 0.55); }
+  .btns { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 28px 0; }
+  .btns span { height: 28px; padding: 0 12px; border-radius: 999px; display: grid; place-items: center; font-size: 13px; font-weight: 500; background: rgb(255 255 255 / 0.12); }
+  .btns .on { background: #fff; color: #000; }
+  .pg { display: flex; justify-content: center; margin-top: 22px; }
+  .pg i { width: 28px; height: 24px; display: grid; place-items: center; }
+  .pg i::before { content: ""; width: 4px; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.28); }
+  .pg i.on::before { width: 16px; background: rgb(255 255 255 / 0.9); }
+</style>

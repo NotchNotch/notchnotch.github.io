@@ -1,73 +1,294 @@
 ---
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { Card, CardGrid, Code, LinkButton } from "@astrojs/starlight/components";
+import { Code } from "astro:components";
+import Base from "../layouts/Base.astro";
+import HeroNotch from "../components/HeroNotch.astro";
+import MiniNotch from "../components/MiniNotch.astro";
+import CounterDemo from "../components/CounterDemo.astro";
+import CopyCommand from "../components/CopyCommand.astro";
 import ExtensionCard from "../components/ExtensionCard.astro";
-import release from "../data/release.json";
-import catalog from "../data/catalog.json";
+import Icon from "../components/Icon.astro";
+import { release, catalog } from "../lib/site";
 
-const showcase = ["sadeqi-ah/focus-timer", "sadeqi-ah/weather", "sadeqi-ah/hacker-news", "sadeqi-ah/moon-phase"]
-  .map((handle) => catalog.extensions.find((entry) => entry.handle === handle))
-  .filter(Boolean);
-const hero = catalog.extensions.find((entry) => entry.handle === "sadeqi-ah/focus-timer")?.screenshots?.[0];
+const pick = (handle: string) => catalog.extensions.find((entry) => entry.handle === handle);
+const featured = ["focus-timer", "calendar", "weather", "github-notifications", "world-clock", "hacker-news"]
+  .map((name) => pick(`sadeqi-ah/${name}`)).filter((entry) => entry !== undefined);
+const reviewed = pick("sadeqi-ah/github-notifications");
+const breakReminder = pick("sadeqi-ah/break-reminder");
+
+const moments = [
+  { variant: "compact", title: "Compact", text: "A symbol and a few words either side of the camera." },
+  { variant: "peek", title: "Announcements", text: "One line under the camera when something changes." },
+  { variant: "expanded", title: "Open", text: "Hover or click for the whole activity. It never scrolls." },
+  { variant: "prompt", title: "Questions", text: "Opens on its own and waits. Closing never answers for you." },
+  { variant: "switcher", title: "Many at once", text: "One activity at a time, the rest a swipe away." },
+  { variant: "idle", title: "Out of the way", text: "Nothing going on? It's just the notch again." },
+] as const;
+
+const counter = `import { useState } from "react";
+import { Activity, Button, Symbol, Text } from "@notchnotch/sdk";
+import { start } from "@notchnotch/runtime";
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    <Activity id="counter" title="Counter">
+      <Activity.Compact
+        leading={<Symbol name="plus.circle" />}
+        trailing={<Text>{count}</Text>}
+      />
+      <Activity.Expanded>
+        <Text size="title">{count} little steps</Text>
+        <Button title="One more"
+          onPress={() => setCount((n) => n + 1)} />
+      </Activity.Expanded>
+    </Activity>
+  );
+}
+
+start(<Counter />);`;
 ---
 
-<StarlightPage
-  frontmatter={{
-    title: "The notch on your Mac, put to work",
-    description: "The notch on your Mac, put to work. Music, calendar, timers and extensions you build in React.",
-    template: "splash",
-    hero: { title: "The notch on your Mac, put to work.", tagline: "NotchNotch shows what's happening now around the camera: the song that's playing, your next meeting, a running timer, or anything an extension adds." },
-  }}
-  hasSidebar={false}
->
-  <div class="actions">
-    <LinkButton href={release.url} icon="download">Download {release.version}</LinkButton>
-    <LinkButton href="/store/" variant="secondary">Browse the Store</LinkButton>
-    <LinkButton href="/docs/extensions/getting-started/" variant="minimal" icon="right-arrow">Build an extension</LinkButton>
-  </div>
-  <p class="fine">Developer preview for macOS 14 or later. Free and open source.</p>
+<Base>
+  <!-- Hero: the top of the page is the top of the screen -->
+  <section class="hero">
+    <div class="notch-anchor"><HeroNotch /></div>
+    <div class="hero-glow" aria-hidden="true"></div>
 
-  {hero && (
-    <figure class="hero-shot">
-      <img src={hero} width="2000" height="1250" alt="The notch expanded, showing a focus timer at 17:38 with Pause and Stop buttons." />
-    </figure>
-  )}
+    <div class="container hero-copy">
+      <div class="tabs rise" role="tablist" aria-label="Show in the notch" data-blob="button">
+        <button type="button" role="tab" data-notch-tab="music" aria-selected="true"><Icon name="music" size={14} /> Music<span class="run"></span></button>
+        <button type="button" role="tab" data-notch-tab="timer" aria-selected="false"><Icon name="timer" size={14} /> Focus Timer<span class="run"></span></button>
+        <button type="button" role="tab" data-notch-tab="calendar" aria-selected="false"><Icon name="calendar" size={14} /> Calendar<span class="run"></span></button>
+      </div>
 
-  <h2>What it does</h2>
-  <CardGrid>
-    <Card title="Music" icon="star">What's playing in Spotify or Apple Music, with artwork and playback controls.</Card>
-    <Card title="Calendar" icon="clock">Your next event with a countdown and a button to join the meeting.</Card>
-    <Card title="Extensions" icon="puzzle">Timers, weather, notifications and more from the Store, each reviewed and signed.</Card>
-    <Card title="Private" icon="padlock">No account, no analytics. Everything stays on your Mac. <a href="/privacy/">Privacy policy</a></Card>
-  </CardGrid>
+      <h1 class="display hero-title rise" data-delay="1">The notch,<br />put to work.</h1>
+      <p class="lede hero-lede rise" data-delay="2">NotchNotch turns the space around your Mac's camera into a quiet place for what's happening now. The song that's playing, your next meeting, a timer, or anything an extension adds.</p>
+      <div class="hero-actions rise" data-delay="3">
+        <a class="button primary large" href={release.url}><Icon name="download" /> Download for Mac</a>
+        <a class="button large" href="/store/">Browse the Store</a>
+      </div>
+      <p class="fine rise" data-delay="3">Version {release.version} · Free and open source · macOS 14 or later</p>
+    </div>
+  </section>
 
-  <h2>From the Store</h2>
-  <div class="grid">
-    {showcase.map((entry) => <ExtensionCard entry={entry} />)}
-  </div>
-  <p><a href="/store/">All {catalog.extensions.length} extensions →</a></p>
+  <!-- How it behaves -->
+  <section class="container section">
+    <header class="head reveal">
+      <span class="label">How it behaves</span>
+      <h2 class="title">Quiet until it matters.</h2>
+      <p class="lede">The notch has a few shapes, and every extension uses the same ones. NotchNotch draws them natively, so they look and move alike.</p>
+    </header>
+    <div class="grid-3">
+      {moments.map((moment, i) => (
+        <article class="stage-card reveal" data-delay={String(i % 3)}>
+          <div class="stage moment-stage"><MiniNotch variant={moment.variant} /></div>
+          <div class="stage-label"><span><b>{moment.title}</b><span>{moment.text}</span></span></div>
+        </article>
+      ))}
+    </div>
+  </section>
 
-  <h2 id="install">Install</h2>
-  <ol class="steps">
-    <li>Download <a href={release.url}><code>NotchNotch-{release.version}.dmg</code></a>, open it and drag <strong>NotchNotch</strong> to <strong>Applications</strong>.</li>
-    <li>Open NotchNotch. This preview isn't notarized by Apple yet, so macOS stops it the first time.</li>
-    <li>Open <strong>System Settings › Privacy &amp; Security</strong>, scroll down and choose <strong>Open Anyway</strong> next to <em>"NotchNotch" was blocked</em>. Confirm with your password.</li>
-  </ol>
-  <p>After that NotchNotch updates itself. The <a href="/docs/guide/using-notchnotch/">guide</a> shows how to connect Music and Calendar.</p>
+  <!-- Numbers -->
+  <section class="container numbers reveal">
+    {[
+      ["0.4%", "CPU when idle, with 13 extensions"],
+      ["27 MB", "of memory for the app"],
+      ["< 1", "wakeup a second, all processes"],
+      ["0", "accounts, analytics or trackers"],
+    ].map(([value, text]) => <div><b>{value}</b><span>{text}</span></div>)}
+  </section>
 
-  <h2>Build an extension</h2>
-  <p>Extensions are React and TypeScript. NotchNotch draws them natively, runs each one in its own sandboxed process, and shows you what it can reach before you install it.</p>
+  <!-- Store -->
+  <section class="container section">
+    <header class="head split reveal">
+      <div>
+        <span class="label">The Store</span>
+        <h2 class="title">Make it yours.</h2>
+      </div>
+      <div class="side">
+        <p class="lede">{catalog.extensions.length} extensions, each reviewed in the open and checked against a signed catalog before it installs.</p>
+        <a class="link" href="/store/">Browse the Store <span class="arrow">→</span></a>
+      </div>
+    </header>
+    <div class="grid-3">
+      {featured.map((entry, i) => <div class="reveal" data-delay={String(i % 3)}><ExtensionCard entry={entry} /></div>)}
+    </div>
+  </section>
 
-  <Code lang="sh" code={"npm create notchnotch-extension@latest my-extension\ncd my-extension && npm install && npx notchnotch dev"} />
+  <!-- Developers -->
+  <section class="container section" id="developers">
+    <header class="head reveal">
+      <span class="label">For developers</span>
+      <h2 class="title">Write React. Get native.</h2>
+      <p class="lede">Describe the notch with components you know. Each extension runs in its own process, and NotchNotch draws what it returns with the system's own controls.</p>
+    </header>
+    <div class="dev reveal">
+      <div class="stage-card code-card">
+        <div class="stage code"><Code code={counter} lang="tsx" theme="github-dark-default" /></div>
+        <div class="stage-label"><span class="tile"><Icon name="code" size={16} /></span><span><b>src/index.tsx</b><span>The whole extension</span></span></div>
+      </div>
+      <div class="stage-card">
+        <div class="stage counter-stage"><CounterDemo /></div>
+        <div class="stage-label"><span class="tile"><Icon name="sparkle" size={16} /></span><span><b>What it draws</b><span>Click the notch, then One more</span></span></div>
+      </div>
+    </div>
+    <div class="dev-cta reveal">
+      <CopyCommand command="npm create notchnotch-extension@latest" />
+      <a class="link" href="/docs/extensions/getting-started/">Getting started <span class="arrow">→</span></a>
+    </div>
+  </section>
 
-  <p>When it's ready, <code>npx notchnotch publish</code> submits it to the Store. <a href="/docs/extensions/getting-started/">Getting started</a> · <a href="/docs/extensions/publishing/">Publishing</a></p>
-</StarlightPage>
+  <!-- Trust -->
+  <section class="container section">
+    <div class="trust reveal">
+      <div class="trust-copy">
+        <span class="label">Safe by default</span>
+        <h2 class="title">You see what an extension can reach before it does.</h2>
+        <ul>
+          <li><Icon name="box" size={16} /><span><b>Its own sandbox.</b> A separate process that can't touch your files or the network unless its manifest says so.</span></li>
+          <li><Icon name="eye" size={16} /><span><b>Reviewed before install.</b> Websites, apps and services, riskiest first. Updates that want more wait for you.</span></li>
+          <li><Icon name="shield" size={16} /><span><b>Signed end to end.</b> The Store's catalog is signed, and each download must match what was reviewed.</span></li>
+        </ul>
+        <a class="link" href="/security/">Security <span class="arrow">→</span></a>
+      </div>
+      <div class="stage review-stage">
+        <div class="sheet">
+          <div class="sheet-head">
+            {reviewed?.icon && <img src={reviewed.icon} alt="" width="40" height="40" />}
+            <div><b>{reviewed?.manifest.name ?? "GitHub Notifications"}</b><span>sadeqi-ah · {reviewed?.manifest.version}</span></div>
+          </div>
+          <p class="sheet-title">Beyond its sandbox, it can</p>
+          <ul>
+            <li><span class="si"><Icon name="globe" size={14} /></span><div><b>Reach a website</b><span>api.github.com</span></div></li>
+            <li class="new"><span class="si"><Icon name="key" size={14} /></span><div><b>Keep a secret in your Keychain</b><span>Personal Access Token</span></div><em>New</em></li>
+          </ul>
+          <div class="sheet-actions"><span>Cancel</span><span class="go">Install</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Final -->
+  <section class="final container reveal">
+    <div class="final-notch" aria-hidden="true"><MiniNotch variant="compact" /></div>
+    <h2 class="display final-title">Put your notch to work.</h2>
+    <div class="hero-actions">
+      <a class="button primary large" href={release.url}><Icon name="download" /> Download {release.version}</a>
+      <a class="button ghost large" href="/docs/guide/using-notchnotch/">Read the guide <span>→</span></a>
+    </div>
+    <p class="fine">Not notarized yet: the first time, choose Open Anyway in System Settings › Privacy &amp; Security. <a href="/docs/guide/using-notchnotch/#install">How</a></p>
+  </section>
+</Base>
 
 <style>
-  .actions { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; }
-  .fine { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 0.75rem; }
-  .hero-shot { margin: 2.5rem 0 1rem; }
-  .hero-shot img { width: 100%; height: auto; border-radius: 1rem; box-shadow: 0 30px 80px -30px rgb(0 0 0 / 0.6); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr)); gap: 1rem; }
-  .steps li { margin-bottom: 0.5rem; }
+  /* Hero */
+  .hero { position: relative; padding-top: 340px; overflow-x: clip; }
+  .notch-anchor { position: absolute; inset: 0 0 auto; height: 0; z-index: 40; }
+  .hero-glow {
+    position: absolute; left: 50%; top: -160px; width: 900px; height: 520px; transform: translateX(-50%); z-index: -1; pointer-events: none;
+    background: radial-gradient(closest-side, rgb(255 255 255 / 0.06), transparent);
+  }
+  .hero-copy { display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .hero-title { font-size: clamp(44px, 7vw, 76px); margin-top: 44px; }
+  .hero-lede { max-width: 560px; margin-top: 20px; }
+  .hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px; }
+  .hero-copy .fine { margin-top: 16px; }
+
+  .tabs { display: flex; padding: 4px; border-radius: 999px; background: var(--card); box-shadow: var(--material); }
+  .tabs button {
+    position: relative; display: inline-flex; align-items: center; gap: 7px;
+    height: 32px; padding: 0 14px; border: 0; border-radius: 999px; background: none; cursor: pointer;
+    font-size: 13px; font-weight: 500; color: var(--text-3); transition: color var(--fast);
+  }
+  .tabs button:hover, .tabs button[aria-selected="true"] { color: var(--text); }
+  .tabs :global(.blob) { --blob: rgb(255 255 255 / 0.09); }
+  .run { position: absolute; left: 14px; right: 14px; bottom: 4px; height: 1.5px; border-radius: 2px; background: rgb(255 255 255 / 0.5); transform: scaleX(0); transform-origin: left; opacity: 0; }
+  :global(.running) > .run { opacity: 1; animation: run var(--run) linear forwards; }
+  @keyframes run { to { transform: scaleX(1); } }
+
+  /* Sections */
+  .section { padding-top: 150px; }
+  .head { max-width: 620px; margin-bottom: 36px; }
+  .head .title { margin-top: 10px; }
+  .head .lede { margin-top: 14px; }
+  .head.split { max-width: none; display: flex; justify-content: space-between; align-items: flex-end; gap: 40px; flex-wrap: wrap; }
+  .head .side { max-width: 380px; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; }
+  .head .side .lede { margin-top: 0; font-size: 15px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .grid-3 > .reveal:not(.stage-card) { display: flex; }
+  .grid-3 > .reveal:not(.stage-card) > :global(*) { flex: 1; }
+
+  .moment-stage { height: 176px; }
+  .moment-stage :global(.mini) { --mz: 0.7; }
+
+  .numbers { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 120px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .numbers div { padding: 28px 24px; display: flex; flex-direction: column; gap: 4px; }
+  .numbers div + div { border-left: 1px solid var(--line); }
+  .numbers b { font-family: var(--font-display); font-size: 32px; font-weight: 500; letter-spacing: -0.03em; }
+  .numbers span { font-size: 13px; color: var(--text-3); }
+
+  .dev { display: grid; grid-template-columns: 1.3fr 1fr; gap: 12px; }
+  .dev > * { min-width: 0; }
+  .code { height: 100%; }
+  .code-card .code { flex: 1; }
+  .code :global(pre.astro-code) { background: transparent !important; box-shadow: none; padding: 20px 22px; font-size: 12.5px; }
+  .counter-stage { flex: 1; min-height: 300px; }
+  .dev-cta { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; }
+
+  .trust { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 6px; border-radius: 22px; background: var(--card); box-shadow: var(--material); }
+  .trust-copy { padding: 36px 32px; }
+  .trust .title { font-size: clamp(26px, 2.8vw, 34px); margin-top: 10px; }
+  .trust ul { list-style: none; margin: 28px 0; padding: 0; display: grid; gap: 16px; }
+  .trust li { display: flex; gap: 12px; color: var(--text-2); font-size: 14px; }
+  .trust li :global(svg) { flex: none; margin-top: 3px; color: var(--text-3); }
+  .trust li b { color: var(--text); font-weight: 500; }
+  .review-stage { display: grid; place-items: center; padding: 36px 24px; }
+  .sheet { width: 100%; max-width: 360px; padding: 18px; border-radius: 18px; background: #1c1c1e; box-shadow: var(--float); }
+  .sheet-head { display: flex; gap: 12px; align-items: center; }
+  .sheet-head img { width: 40px; height: 40px; }
+  .sheet-head div { display: flex; flex-direction: column; }
+  .sheet-head b { font-weight: 600; font-size: 14px; }
+  .sheet-head span { font-size: 12px; color: var(--text-3); }
+  .sheet-title { font-size: 12px; color: var(--text-3); margin: 18px 0 8px; }
+  .sheet ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .sheet li { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 11px; background: rgb(255 255 255 / 0.04); }
+  .sheet li div { flex: 1; display: flex; flex-direction: column; font-size: 13px; }
+  .sheet li span:not(.si) { font-size: 12px; color: var(--text-3); }
+  .si { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: rgb(255 255 255 / 0.07); color: var(--text-2); flex: none; }
+  .sheet li.new { box-shadow: inset 0 0 0 1px rgb(255 179 64 / 0.35); }
+  .sheet li em { font-style: normal; font-size: 11px; font-weight: 600; color: #ffc35a; }
+  .sheet-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; font-size: 13px; font-weight: 500; }
+  .sheet-actions span { height: 28px; padding: 0 14px; display: grid; place-items: center; border-radius: 999px; background: rgb(255 255 255 / 0.08); }
+  .sheet-actions .go { background: var(--accent); }
+
+  .final { padding-top: 170px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .final-notch { position: relative; width: 260px; height: 40px; margin-bottom: 36px; }
+  .final-notch :global(.mini) { --mz: 1; }
+  .final-title { font-size: clamp(36px, 5vw, 56px); }
+  .final .fine { margin-top: 18px; max-width: 440px; }
+  .final .fine a { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
+
+  @media (max-width: 1199px) {
+    .hero { padding-top: calc(var(--nav-h) + 16px); }
+    .notch-anchor {
+      position: relative; height: 230px; margin: 0 16px; border-radius: 22px;
+      background: var(--stage); box-shadow: var(--material); overflow: hidden;
+    }
+    .notch-anchor :global(.hn) { --zoom: 1; }
+    .hero-title { margin-top: 36px; }
+  }
+  @media (max-width: 960px) {
+    .grid-3 { grid-template-columns: 1fr 1fr; }
+    .dev, .trust { grid-template-columns: 1fr; }
+    .numbers { grid-template-columns: 1fr 1fr; }
+    .numbers div:nth-child(3) { border-left: 0; }
+    .numbers div:nth-child(n+3) { border-top: 1px solid var(--line); }
+  }
+  @media (max-width: 480px) { .notch-anchor :global(.hn) { --zoom: 0.84; } }
+  @media (max-width: 640px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .tabs button { padding: 0 10px; font-size: 12.5px; }
+    .tabs button :global(svg) { display: none; }
+    .section { padding-top: 110px; }
+  }
 </style>

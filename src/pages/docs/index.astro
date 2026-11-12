@@ -1,0 +1,124 @@
+---
+import { getCollection } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import Icon from "../../components/Icon.astro";
+import MiniNotch from "../../components/MiniNotch.astro";
+import CopyCommand from "../../components/CopyCommand.astro";
+import { docsNav, url } from "../../lib/site";
+
+const titles = new Map((await getCollection("docs")).map((entry) => [entry.id, entry.data.title]));
+const label = (id: string) => docsNav.flatMap((group) => group.items).find((item) => item.id === id)?.label ?? titles.get(id) ?? id;
+
+const paths = [
+  { variant: "compact", title: "Use NotchNotch", text: "Install it, connect Music and Calendar, add extensions, and fix what isn't working.", href: "/docs/guide/using-notchnotch/" },
+  { variant: "expanded", title: "Build an extension", text: "React and TypeScript, in the notch on every save, then published to the Store.", href: "/docs/extensions/getting-started/" },
+  { variant: "switcher", title: "Contribute to the app", text: "Build NotchNotch from source, learn how it fits together, and send a change.", href: "/docs/contributing/" },
+] as const;
+
+const reference = [
+  ["docs/extensions/concepts", "Activities, prompts, announcements and settings", "sparkle"],
+  ["docs/extensions/components", "Everything you can put in the notch", "box"],
+  ["docs/extensions/preferences", "Settings people fill in, drawn natively", "edit"],
+  ["docs/extensions/storage", "Keep values and secrets across restarts", "key"],
+  ["docs/extensions/network", "Call web APIs with fetch", "globe"],
+  ["docs/extensions/connections", "Talk to local apps and services", "bolt"],
+  ["docs/extensions/native-helpers", "Reach apps through native code", "cpu"],
+  ["docs/extensions/manifest", "Every field of notchnotch.json", "hash"],
+  ["docs/extensions/publishing", "Icon, About page, guidelines and .notchext files", "download"],
+].filter(([id]) => titles.has(id));
+
+const internals = ["docs/internals/architecture", "docs/internals/releasing", "docs/internals/store-catalog", "docs/internals/performance", "changelog", "privacy", "security"]
+  .filter((id) => titles.has(id));
+---
+
+<Base title="Documentation" description="Use NotchNotch, build extensions for it in React, and contribute to the app.">
+  <section class="container head">
+    <span class="label rise">Documentation</span>
+    <h1 class="display rise" data-delay="1">Everything about the notch.</h1>
+    <button class="search rise" data-delay="2" type="button" data-open-search>
+      <Icon name="search" size={15} /><span>Search the docs</span><kbd>⌘K</kbd>
+    </button>
+  </section>
+
+  <section class="container paths">
+    {paths.map((path, i) => (
+      <a class="stage-card rise" data-delay={String(i + 1)} href={path.href}>
+        <div class="stage path-stage"><MiniNotch variant={path.variant} /></div>
+        <div class="stage-label"><span><b>{path.title}</b><span>{path.text}</span></span></div>
+      </a>
+    ))}
+  </section>
+
+  <section class="container quick reveal">
+    <div>
+      <b>Your first extension, in a minute</b>
+      <span>Needs macOS 14, NotchNotch and Node.js 22. It shows up in the notch marked Development and reloads on every save.</span>
+    </div>
+    <CopyCommand command="npm create notchnotch-extension@latest my-extension" />
+  </section>
+
+  <section class="container block">
+    <header class="block-head reveal">
+      <h2>Extension reference</h2>
+      <a class="link" href="/docs/extensions/getting-started/">Start at the beginning <span class="arrow">→</span></a>
+    </header>
+    <div class="ref reveal" data-blob="a">
+      {reference.map(([id, text, icon]) => (
+        <a href={url(id)}>
+          <span class="tile"><Icon name={icon as any} size={15} /></span>
+          <span><b>{label(id)}</b><span>{text}</span></span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="container block">
+    <header class="block-head reveal"><h2>Under the hood</h2></header>
+    <div class="chips reveal" data-blob="a">
+      {internals.map((id) => <a href={url(id)}>{label(id)}</a>)}
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head { padding-top: calc(var(--nav-h) + 88px); display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .head h1 { font-size: clamp(38px, 5.6vw, 60px); margin-top: 12px; }
+  .search {
+    display: flex; align-items: center; gap: 10px; width: min(100%, 460px); height: 44px; margin-top: 32px; padding: 0 8px 0 16px;
+    border: 0; border-radius: 999px; cursor: pointer; font-size: 14px; color: var(--text-3);
+    background: var(--card); box-shadow: var(--material); transition: color var(--quick), background-color var(--quick);
+  }
+  .search:hover { color: var(--text-2); background: #1b1b1b; }
+  .search kbd { margin-left: auto; }
+
+  .paths { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 72px; }
+  .path-stage { height: 168px; }
+  .path-stage :global(.mini) { --mz: 0.68; }
+
+  .quick {
+    margin-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;
+    padding: 18px 18px 18px 22px; border-radius: 22px; background: var(--card); box-shadow: var(--material);
+  }
+  .quick b { display: block; font-weight: 500; font-size: 14px; }
+  .quick span { display: block; font-size: 13px; color: var(--text-3); max-width: 56ch; }
+
+  .block { margin-top: 96px; }
+  .block-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 14px; }
+  .block-head h2 { font-size: 20px; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
+  .ref { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 12px; margin: 0 -12px; }
+  .ref :global(.blob) { --blob: rgb(255 255 255 / 0.045); --br: 14px; }
+  .ref a { display: flex; gap: 12px; align-items: flex-start; padding: 12px; border-radius: 14px; }
+  .ref .tile { width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; flex: none; background: var(--card); box-shadow: var(--material); color: var(--text-2); }
+  .ref b { display: block; font-weight: 500; font-size: 14px; }
+  .ref span span { display: block; font-size: 13px; color: var(--text-3); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 0 -12px; }
+  .chips :global(.blob) { --blob: rgb(255 255 255 / 0.07); }
+  .chips a { height: 34px; padding: 0 12px; display: grid; place-items: center; border-radius: 999px; font-size: 13.5px; color: var(--text-2); transition: color var(--quick); }
+  .chips a:hover { color: var(--text); }
+
+  @media (max-width: 960px) {
+    .paths { grid-template-columns: 1fr; }
+    .ref { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 640px) { .ref { grid-template-columns: 1fr; } }
+</style>

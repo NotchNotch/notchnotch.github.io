@@ -1,0 +1,66 @@
+---
+import { ClientRouter } from "astro:transitions";
+import Nav from "../components/Nav.astro";
+import Footer from "../components/Footer.astro";
+import Search from "../components/Search.astro";
+import "../styles/global.css";
+
+interface Props { title?: string; description?: string; image?: string; footer?: boolean; animate?: boolean }
+const {
+  title,
+  description = "The notch on your Mac, put to work. Music, calendar, timers and extensions you build in React.",
+  image,
+  footer = true,
+  // Docs pages animate only their article, so their sidebar stays put.
+  animate = true,
+} = Astro.props;
+const fullTitle = title ? `${title} · NotchNotch` : "NotchNotch — The notch on your Mac, put to work";
+const canonical = new URL(Astro.url.pathname, Astro.site);
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta name="theme-color" content="#121212" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    {image && <meta property="og:image" content={image} />}
+    <meta name="twitter:card" content={image ? "summary_large_image" : "summary"} />
+    <script is:inline data-astro-rerun>document.documentElement.classList.add("js");</script>
+    <ClientRouter />
+  </head>
+  <body>
+    <Nav />
+    <div class="page" transition:name={animate ? "page" : undefined}>
+      <main>
+        <slot />
+      </main>
+      {footer && <Footer />}
+    </div>
+    <Search />
+
+    <script>
+      import { blobs } from "../lib/blob";
+      document.addEventListener("astro:page-load", () => blobs());
+
+      // Fade sections in as they scroll into view. Runs again after each client-side navigation.
+      document.addEventListener("astro:page-load", () => {
+        const items = document.querySelectorAll(".reveal:not(.in)");
+        if (!("IntersectionObserver" in window)) { items.forEach((item) => item.classList.add("in")); return; }
+        const observer = new IntersectionObserver((entries) => {
+          for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add("in"); observer.unobserve(entry.target); }
+        }, { rootMargin: "0px 0px -8% 0px", threshold: 0.08 });
+        items.forEach((item) => observer.observe(item));
+        document.addEventListener("astro:before-swap", () => observer.disconnect(), { once: true });
+      });
+    </script>
+  </body>
+</html>

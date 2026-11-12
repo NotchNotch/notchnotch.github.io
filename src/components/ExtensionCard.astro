@@ -1,33 +1,40 @@
 ---
-interface Props {
-  entry: { handle: string; icon?: string; manifest: { name: string; description: string; categories?: string[] } };
-}
-const { entry } = Astro.props;
-const [author] = entry.handle.split("/");
+import { authorOf, storeUrl, type CatalogEntry } from "../lib/site";
+import Shot from "./Shot.astro";
+
+interface Props { entry: CatalogEntry; shot?: boolean }
+const { entry, shot = true } = Astro.props;
+const { manifest } = entry;
+const author = authorOf(entry);
+const categories = manifest.categories ?? [];
+const screenshot = entry.screenshots?.[0];
+const id = entry.handle.replace("/", "-");
 ---
 
-<a class="card" href={`/store/${entry.handle}/`} data-search={`${entry.manifest.name} ${entry.manifest.description} ${author} ${(entry.manifest.categories ?? []).join(" ")}`.toLowerCase()}
-   data-categories={(entry.manifest.categories ?? []).join("|")}>
-  {entry.icon ? <img src={entry.icon} width="56" height="56" alt="" /> : <span class="placeholder" />}
-  <span class="text">
-    <strong>{entry.manifest.name}</strong>
-    <span class="description">{entry.manifest.description}</span>
-    <span class="author">{author}</span>
-  </span>
+<a class:list={["stage-card", "extension", { compact: !shot }]} href={storeUrl(entry)}
+   data-search={`${manifest.name} ${manifest.description} ${author} ${categories.join(" ")}`.toLowerCase()}
+   data-categories={categories.join("|")}>
+  {shot && (screenshot
+    ? <Shot src={screenshot} alt="" height={176} />
+    : <div class="stage fallback">{entry.icon && <img src={entry.icon} alt="" width="72" height="72" loading="lazy" />}</div>)}
+  <div class="stage-label">
+    <span class="tile">{entry.icon ? <img src={entry.icon} width="34" height="34" alt="" loading="lazy" transition:name={`icon-${id}`} /> : null}</span>
+    <span class="text">
+      <b>{manifest.name}</b>
+      <span>{manifest.description}</span>
+    </span>
+  </div>
 </a>
 
 <style>
-  .card {
-    display: flex; gap: 0.9rem; align-items: flex-start; padding: 1rem;
-    border: 1px solid var(--sl-color-hairline); border-radius: 0.9rem;
-    text-decoration: none; color: inherit; background: var(--sl-color-bg-nav);
-    transition: border-color 0.15s, transform 0.15s;
-  }
-  .card:hover { border-color: var(--sl-color-gray-4); transform: translateY(-1px); }
-  img, .placeholder { width: 56px; height: 56px; border-radius: 13px; flex: none; }
-  .placeholder { background: var(--nn-gradient); }
-  .text { display: flex; flex-direction: column; gap: 0.15rem; min-width: 0; }
-  strong { color: var(--sl-color-white); }
-  .description { font-size: var(--sl-text-sm); color: var(--sl-color-gray-2); line-height: 1.4; }
-  .author { font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+  .extension { height: 100%; }
+  .text { min-width: 0; }
+  .text span { display: -webkit-box !important; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
+  .extension .tile { background: none; box-shadow: none; }
+  .extension :global(.shot img) { transition: transform 0.6s var(--ease); }
+  .extension:hover :global(.shot img) { transform: scale(1.025); }
+  .fallback { height: 176px; display: grid; place-items: center; }
+  .fallback img { width: 72px; height: 72px; filter: drop-shadow(0 12px 28px rgb(0 0 0 / 0.5)); transition: transform 0.6s var(--ease); }
+  .extension:hover .fallback img { transform: scale(1.05); }
+  .compact .text span { -webkit-line-clamp: 2; }
 </style>

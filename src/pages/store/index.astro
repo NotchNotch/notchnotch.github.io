@@ -1,68 +1,143 @@
 ---
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import Base from "../../layouts/Base.astro";
 import ExtensionCard from "../../components/ExtensionCard.astro";
-import catalog from "../../data/catalog.json";
+import Shot from "../../components/Shot.astro";
+import Icon from "../../components/Icon.astro";
+import { catalog, extensions, categories, storeUrl, storeRepository } from "../../lib/site";
 
-const extensions = [...catalog.extensions].sort((a, b) => a.manifest.name.localeCompare(b.manifest.name));
-const categories = [...new Set(extensions.flatMap((entry) => entry.manifest.categories ?? []))].sort();
+const spotlight = ["sadeqi-ah/focus-timer", "sadeqi-ah/calendar"]
+  .map((handle) => catalog.extensions.find((entry) => entry.handle === handle))
+  .filter((entry) => entry !== undefined);
 ---
 
-<StarlightPage frontmatter={{ title: "Store", description: "Extensions for NotchNotch, reviewed and signed.", tableOfContents: false }}>
-  <p>Every extension here was reviewed in <a href="https://github.com/NotchNotch/notchnotch-extensions">notchnotch-extensions</a>, and NotchNotch checks each download against the signed catalog. Install from an extension's page, or from <strong>Settings &amp; Extensions… › Store</strong> in the app.</p>
+<Base title="Store" description="Extensions for NotchNotch, reviewed in the open and signed.">
+  <section class="container head">
+    <span class="label rise">The Store</span>
+    <h1 class="display rise" data-delay="1">Extensions for the notch.</h1>
+    <p class="lede rise" data-delay="2">Each one reviewed in <a href={storeRepository}>the open</a> and checked against a signed catalog before it installs. Get them here or in the app.</p>
+  </section>
 
-  <div class="filters">
-    <input type="search" id="search" placeholder="Search extensions" aria-label="Search extensions" />
-    <div class="chips" role="group" aria-label="Categories">
-      <button type="button" data-category="" aria-pressed="true">All</button>
-      {categories.map((category) => <button type="button" data-category={category} aria-pressed="false">{category}</button>)}
+  <section class="container spotlight">
+    {spotlight.map((entry, i) => (
+      <a class="stage-card rise" data-delay={String(i + 2)} href={storeUrl(entry)}>
+        {entry.screenshots?.[0] ? <Shot src={entry.screenshots[0]} alt={`${entry.manifest.name} in the notch`} height={250} zoom={1.25} eager /> : <div class="stage fallback">{entry.icon && <img src={entry.icon} alt="" width="96" height="96" />}</div>}
+        <div class="stage-label">
+          <span class="tile icon">{entry.icon && <img src={entry.icon} alt="" width="34" height="34" />}</span>
+          <span><b>{entry.manifest.name}</b><span>{entry.manifest.description}</span></span>
+          <span class="get">Get</span>
+        </div>
+      </a>
+    ))}
+  </section>
+
+  <section class="container browse">
+    <div class="toolbar">
+      <label class="field">
+        <Icon name="search" size={14} />
+        <input type="search" data-store-search placeholder="Search extensions" aria-label="Search extensions" />
+      </label>
+      <div class="cats" role="group" aria-label="Categories" data-blob="button">
+        <button type="button" data-category="" aria-pressed="true">All</button>
+        {categories.map((category) => <button type="button" data-category={category} aria-pressed="false">{category}</button>)}
+      </div>
+      <span class="count" data-count>{extensions.length}</span>
     </div>
-  </div>
 
-  <div class="grid" id="extensions">
-    {extensions.map((entry) => <ExtensionCard entry={entry} />)}
-  </div>
-  <p id="empty" hidden>No extensions match.</p>
+    <div class="grid" data-grid>
+      {extensions.map((entry) => <ExtensionCard entry={entry} />)}
+    </div>
+    <p class="empty" data-empty hidden>Nothing matches. Try another word or category.</p>
+  </section>
 
-  <p class="fine">Built one? <a href="/docs/extensions/publishing/#publish-to-the-store">Submit it with <code>notchnotch publish</code></a>.</p>
-</StarlightPage>
+  <section class="container">
+    <div class="submit">
+      <div><b>Built one?</b><span>Submit it with <code>npx notchnotch publish</code>. It's reviewed in public, then signed into the catalog.</span></div>
+      <a class="button" href="/docs/extensions/publishing/">Publishing guide</a>
+    </div>
+  </section>
+</Base>
 
 <script>
-  const search = document.querySelector<HTMLInputElement>("#search")!;
-  const chips = [...document.querySelectorAll<HTMLButtonElement>("[data-category]")];
-  const cards = [...document.querySelectorAll<HTMLElement>("#extensions .card")];
-  let category = "";
-  function update() {
-    const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
-    let shown = 0;
-    for (const card of cards) {
-      const visible = words.every((word) => card.dataset.search!.includes(word))
-        && (!category || card.dataset.categories!.split("|").includes(category));
-      card.hidden = !visible;
-      if (visible) shown++;
-    }
-    document.querySelector<HTMLElement>("#empty")!.hidden = shown > 0;
-  }
-  search.addEventListener("input", update);
-  for (const chip of chips) chip.addEventListener("click", () => {
-    category = chip.dataset.category!;
-    for (const other of chips) other.setAttribute("aria-pressed", String(other === chip));
-    update();
+  document.addEventListener("astro:page-load", () => {
+    const search = document.querySelector<HTMLInputElement>("[data-store-search]");
+    if (!search) return;
+    const chips = [...document.querySelectorAll<HTMLButtonElement>("[data-category]")];
+    const cards = [...document.querySelectorAll<HTMLElement>("[data-grid] > a")];
+    const count = document.querySelector<HTMLElement>("[data-count]")!;
+    const empty = document.querySelector<HTMLElement>("[data-empty]")!;
+    let category = "";
+    const update = () => {
+      const words = search.value.toLowerCase().split(/\s+/).filter(Boolean);
+      let shown = 0;
+      for (const card of cards) {
+        const visible = words.every((word) => card.dataset.search!.includes(word))
+          && (!category || card.dataset.categories!.split("|").includes(category));
+        // Cards that stay animate into their new places; see the grid's view transition below.
+        card.hidden = !visible;
+        if (visible) shown++;
+      }
+      count.textContent = String(shown);
+      empty.hidden = shown > 0;
+    };
+    const run = (change: () => void) => {
+      // Rearranging the grid as a same-document view transition makes the cards glide.
+      if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) { change(); return; }
+      const html = document.documentElement;
+      html.classList.add("local-vt");
+      cards.forEach((card, i) => { card.style.viewTransitionName = `card-${i}`; });
+      document.startViewTransition(change).finished.finally(() => {
+        html.classList.remove("local-vt");
+        cards.forEach((card) => { card.style.viewTransitionName = ""; });
+      });
+    };
+    search.addEventListener("input", update);
+    for (const chip of chips) chip.addEventListener("click", () => {
+      category = chip.dataset.category!;
+      chips.forEach((other) => other.setAttribute("aria-pressed", String(other === chip)));
+      run(update);
+    });
   });
 </script>
 
 <style>
-  .filters { display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0 1rem; }
-  input[type="search"] {
-    width: 100%; max-width: 28rem; padding: 0.6rem 0.9rem; border-radius: 0.6rem; font: inherit;
-    border: 1px solid var(--sl-color-gray-5); background: var(--sl-color-bg-nav); color: var(--sl-color-white);
+  .head { padding-top: calc(var(--nav-h) + 88px); display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .head h1 { font-size: clamp(38px, 5.6vw, 60px); margin-top: 12px; }
+  .head .lede { max-width: 520px; margin-top: 16px; }
+  .head .lede a { color: var(--text); box-shadow: inset 0 -1px 0 var(--line-strong); }
+
+  .spotlight { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 64px; }
+  .fallback { height: 250px; display: grid; place-items: center; }
+  .fallback img { width: 96px; height: 96px; filter: drop-shadow(0 16px 36px rgb(0 0 0 / 0.55)); transition: transform 0.6s var(--ease); }
+  .spotlight a:hover .fallback img { transform: scale(1.05); }
+  .spotlight .icon { background: none; box-shadow: none; }
+  .spotlight .stage-label > span:nth-child(2) { flex: 1; min-width: 0; }
+  .get { flex: none; height: 28px; padding: 0 14px; border-radius: 999px; display: grid; place-items: center; font-size: 13px; font-weight: 600; color: var(--accent-ink); background: var(--accent-soft); transition: background-color var(--quick); }
+  .spotlight a:hover .get { background: rgb(47 140 255 / 0.24); }
+  .spotlight :global(.shot img) { transition: transform 0.6s var(--ease); }
+  .spotlight a:hover :global(.shot img) { transform: scale(1.02); }
+
+  .browse { margin-top: 64px; }
+  .toolbar {
+    position: sticky; top: var(--nav-h); z-index: 5; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+    padding: 12px 0; margin-bottom: 4px; background: var(--bg);
   }
-  .chips { display: flex; flex-wrap: wrap; gap: 0.4rem; }
-  .chips button {
-    font: inherit; font-size: var(--sl-text-sm); padding: 0.3rem 0.8rem; border-radius: 999px; cursor: pointer;
-    border: 1px solid var(--sl-color-gray-5); background: transparent; color: var(--sl-color-gray-2);
-  }
-  .chips button[aria-pressed="true"] { background: var(--sl-color-white); color: var(--sl-color-black); border-color: var(--sl-color-white); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr)); gap: 1rem; }
-  .grid :global([hidden]) { display: none; }
-  .fine { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); margin-top: 2rem; }
+  .field { display: flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; width: 220px; border-radius: 999px; color: var(--text-3); background: var(--card); box-shadow: var(--material); }
+  .field:focus-within { box-shadow: var(--material), 0 0 0 2px rgb(47 140 255 / 0.4); }
+  .field input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: var(--text); font: inherit; font-size: 13.5px; }
+  .cats { display: flex; flex-wrap: wrap; }
+  .cats :global(.blob) { --blob: rgb(255 255 255 / 0.08); }
+  .cats button { height: 34px; padding: 0 12px; border: 0; border-radius: 999px; cursor: pointer; font-size: 13px; background: none; color: var(--text-3); transition: color var(--quick); }
+  .cats button:hover, .cats button[aria-pressed="true"] { color: var(--text); }
+  .count { margin-left: auto; font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+  .count::after { content: " extensions"; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .empty { padding: 64px 0; text-align: center; color: var(--text-3); }
+
+  .submit { margin-top: 96px; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; padding: 18px 18px 18px 22px; border-radius: 22px; background: var(--card); box-shadow: var(--material); }
+  .submit b { display: block; font-weight: 500; font-size: 14px; }
+  .submit span { font-size: 13px; color: var(--text-3); }
+  .submit code { font-size: 12px; color: var(--text); background: var(--chip); padding: 1px 6px; border-radius: 5px; }
+
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr 1fr; } .spotlight { grid-template-columns: 1fr; } }
+  @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } .field { width: 100%; } .count { display: none; } }
 </style>

@@ -1,7 +1,7 @@
 # notchnotch.github.io
 
 The NotchNotch website: landing page, documentation, Store and changelog, built
-with [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
+with [Astro](https://astro.build). Navigation happens in the page (Astro's client router), so moving between the landing page, docs and Store never reloads.
 
 The content isn't edited here. `scripts/sync.mjs` brings it in before each build:
 

@@ -1,0 +1,307 @@
+---
+// The landing page's notch, a port of the app's NotchView: the same
+// silhouette (shoulders that flare out into the screen edge), the same sizes
+// per presentation, and the same content as Music, Focus Timer and Calendar
+// draw. Sizes are in points, as in NotchGeometry, at a camera of 184 × 32.
+---
+
+<div class="hn" data-hero-notch data-activity="music" data-state="idle" role="img"
+     aria-label="The notch, showing Music, then Focus Timer, then Calendar">
+  <div class="shell">
+    <!-- Compact: a symbol and a few words either side of the camera -->
+    <div class="wings" aria-hidden="true">
+      <div class="wing left">
+        <span class="for music"><span class="art art-s"></span></span>
+        <span class="for timer"><svg class="sym" viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
+        <span class="for calendar"><svg class="sym" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.5"/><path d="M5.2 1.6v2.6M10.8 1.6v2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+      </div>
+      <div class="cam"></div>
+      <div class="wing right">
+        <span class="for music"><span class="wave"><i></i><i></i><i></i><i></i></span></span>
+        <span class="for timer"><span class="cap" data-clock>24:12</span></span>
+        <span class="for calendar"><span class="cap">12m</span></span>
+      </div>
+    </div>
+    <div class="peek" aria-hidden="true">
+      <span class="for music">Midnight Drive</span>
+      <span class="for calendar">Up next • Design review</span>
+    </div>
+
+    <!-- Expanded -->
+    <div class="expanded" aria-hidden="true">
+      <div class="gear"><svg viewBox="0 0 16 16"><path d="M8 5.4a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+
+      <!-- Music: the headerless player -->
+      <section class="page music">
+        <div class="player-top">
+          <span class="art art-l"></span>
+          <div class="meta"><b>Midnight Drive</b><span>Lumen Coast</span></div>
+          <span class="wave wave-l"><i></i><i></i><i></i><i></i></span>
+        </div>
+        <div class="scrub"><span data-pos>1:24</span><i><b data-bar></b></i><span>3:52</span></div>
+        <div class="transport">
+          <svg class="t-sm" viewBox="0 0 20 20"><path d="M2.5 6h3.2c2 0 3 .8 4.3 3l1 1.7c1.3 2.3 2.3 3.3 4.3 3.3h2.2M14.8 11.8 17.5 14l-2.7 2.2M2.5 14h3.2c1.3 0 2.1-.4 2.9-1.3M17.5 6h-2.2c-1.3 0-2.1.4-2.9 1.3M14.8 3.8 17.5 6l-2.7 2.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <svg class="t-md" viewBox="0 0 24 24"><path d="M11.6 6.4v11.2L3.4 12l8.2-5.6Zm9.4 0v11.2L12.8 12 21 6.4Z" fill="currentColor"/></svg>
+          <svg class="t-lg" viewBox="0 0 24 24"><rect x="5.5" y="4.5" width="4.4" height="15" rx="1.3" fill="currentColor"/><rect x="14.1" y="4.5" width="4.4" height="15" rx="1.3" fill="currentColor"/></svg>
+          <svg class="t-md" viewBox="0 0 24 24"><path d="M12.4 6.4v11.2l8.2-5.6-8.2-5.6Zm-9.4 0v11.2l8.2-5.6L3 6.4Z" fill="currentColor"/></svg>
+          <svg class="t-sm" viewBox="0 0 20 20"><path d="M3 9.2V8a3 3 0 0 1 3-3h10.5M14 2.5 16.5 5 14 7.5M17 10.8V12a3 3 0 0 1-3 3H3.5M6 17.5 3.5 15 6 12.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </section>
+
+      <!-- Focus Timer -->
+      <section class="page timer">
+        <div class="top"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="row">
+          <svg class="cap-sym" viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+          <span class="caption">FOCUS</span>
+          <span class="badge success">Running</span>
+        </div>
+        <span class="timer-digits" data-clock>24:12</span>
+        <span class="progress"><b data-timer-bar></b></span>
+        <hr />
+        <div class="actions">
+          <span class="btn danger" aria-label="Stop"><i></i></span>
+          <span class="btn accent"><svg viewBox="0 0 16 16"><rect x="3.6" y="2.6" width="3" height="10.8" rx="1" fill="currentColor"/><rect x="9.4" y="2.6" width="3" height="10.8" rx="1" fill="currentColor"/></svg>Pause</span>
+        </div>
+      </section>
+
+      <!-- Calendar -->
+      <section class="page calendar">
+        <div class="top"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="row">
+          <svg class="cap-sym" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.6"/></svg>
+          <span class="caption">UP NEXT</span>
+          <span class="badge warning">In 12m</span>
+        </div>
+        <span class="ev-title">Design review</span>
+        <span class="ev-sub">Today · 10:30 – 11:00 · Work</span>
+        <div class="actions start">
+          <span class="btn accent"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="9" height="8" rx="2" fill="currentColor"/><path d="m11.5 7 3-2v6l-3-2Z" fill="currentColor"/></svg>Join</span>
+          <span class="btn fill"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.5"/></svg>Open in Calendar</span>
+        </div>
+      </section>
+
+      <div class="pager"><i class="for-music"></i><i class="for-timer"></i><i class="for-calendar"></i></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // How long each presentation stays, in the order the app moves through them.
+  const steps: Record<string, [string, number][]> = {
+    music: [["compact", 900], ["peek", 1700], ["expanded", 4200], ["compact", 700]],
+    timer: [["compact", 1300], ["expanded", 4200], ["compact", 700]],
+    calendar: [["compact", 900], ["peek", 1700], ["expanded", 4200], ["compact", 700]],
+  };
+  const order = Object.keys(steps);
+  const total = (activity: string) => steps[activity].reduce((sum, [, ms]) => sum + ms, 0);
+  const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+
+  document.addEventListener("astro:page-load", () => {
+    const notch = document.querySelector<HTMLElement>("[data-hero-notch]");
+    if (!notch) return;
+    const tabs = [...document.querySelectorAll<HTMLButtonElement>("[data-notch-tab]")];
+    const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let index = 0, timers: number[] = [], hovering = false, visible = true;
+    let seconds = 24 * 60 + 12, position = 84;
+
+    const clear = () => { timers.forEach(clearTimeout); timers = []; };
+    function select(i: number) {
+      index = i;
+      notch!.dataset.activity = order[i];
+      tabs.forEach((tab) => {
+        const on = tab.dataset.notchTab === order[i];
+        tab.setAttribute("aria-selected", String(on));
+        tab.style.setProperty("--run", "0s");
+        tab.classList.remove("running");
+        if (on && !reduced && !hovering) { void tab.offsetWidth; tab.style.setProperty("--run", `${total(order[i])}ms`); tab.classList.add("running"); }
+      });
+    }
+    function play(i: number) {
+      clear();
+      select(i);
+      if (reduced) { notch!.dataset.state = "expanded"; return; }
+      let at = 0;
+      for (const [state, ms] of steps[order[i]]) {
+        timers.push(window.setTimeout(() => { if (!hovering) notch!.dataset.state = state; }, at));
+        at += ms;
+      }
+      timers.push(window.setTimeout(() => { if (visible && !hovering) play((i + 1) % order.length); }, at));
+    }
+
+    tabs.forEach((tab) => tab.addEventListener("click", () => {
+      clear(); select(order.indexOf(tab.dataset.notchTab!));
+      notch.dataset.state = "expanded";
+      timers.push(window.setTimeout(() => !hovering && play((index + 1) % order.length), 5200));
+    }));
+    notch.addEventListener("pointerenter", () => {
+      hovering = true; clear();
+      tabs.forEach((tab) => tab.classList.remove("running"));
+      notch.dataset.state = "expanded";
+    });
+    notch.addEventListener("pointerleave", () => {
+      hovering = false;
+      notch.dataset.state = "compact";
+      timers.push(window.setTimeout(() => play((index + 1) % order.length), 900));
+    });
+
+    const tick = window.setInterval(() => {
+      if (!visible) return;
+      seconds = seconds > 0 ? seconds - 1 : 25 * 60;
+      position = (position + 1) % 232;
+      notch.querySelectorAll("[data-clock]").forEach((el) => { el.textContent = clock(seconds); });
+      notch.querySelector("[data-pos]")!.textContent = clock(position);
+      notch.querySelector<HTMLElement>("[data-bar]")!.style.width = `${(position / 232) * 100}%`;
+      notch.querySelector<HTMLElement>("[data-timer-bar]")!.style.width = `${(1 - seconds / 1500) * 100}%`;
+    }, 1000);
+
+    const observer = new IntersectionObserver(([entry]) => {
+      const was = visible; visible = entry.isIntersecting;
+      if (visible && !was) play(index); else if (!visible) clear();
+    });
+    observer.observe(notch);
+
+    // The notch drops in from the camera, as when the app launches.
+    timers.push(window.setTimeout(() => play(0), reduced ? 0 : 500));
+    document.addEventListener("astro:before-swap", () => { clear(); clearInterval(tick); observer.disconnect(); }, { once: true });
+  });
+</script>
+
+<style>
+  /* Presentation sizes from NotchGeometry, camera 184 × 32 */
+  .hn {
+    --w: 184px; --h: 32px; --shoulder: 0px; --r: 12px; --shadow: 0;
+    position: absolute; top: 0; left: 50%; z-index: 40;
+    width: var(--w); height: var(--h);
+    transform: translateX(-50%);
+    zoom: var(--zoom, 1.3);
+    transition: width 0.36s var(--spring-close), height 0.36s var(--spring-close), --shoulder 0.36s var(--spring-close);
+    filter: drop-shadow(0 7px calc(var(--shadow) * 16px) rgb(0 0 0 / calc(var(--shadow) * 0.5)));
+    font-family: var(--font);
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hn[data-state="idle"] { --w: 184px; --h: 32px; --shoulder: 0px; --r: 12px; }
+  .hn[data-state="compact"] { --w: 244px; --h: 32px; --shoulder: 5px; --r: 12px; }
+  .hn[data-state="peek"] { --w: 320px; --h: 78px; --shoulder: 18px; --r: 22px; --shadow: 0.55; }
+  .hn[data-state="expanded"] {
+    --w: 384px; --shoulder: 28px; --r: 34px; --shadow: 1;
+    transition: width 0.44s var(--spring-open), height 0.44s var(--spring-open), --shoulder 0.44s var(--spring-open);
+  }
+  .hn[data-state="expanded"][data-activity="music"] { --h: 206px; }
+  .hn[data-state="expanded"][data-activity="timer"] { --h: 228px; }
+  .hn[data-state="expanded"][data-activity="calendar"] { --h: 196px; }
+
+  /* The shoulders: concave corners that join the screen edge */
+  .hn::before, .hn::after {
+    content: ""; position: absolute; top: 0; width: var(--shoulder); height: var(--shoulder);
+  }
+  .hn::before { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .hn::after { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+
+  .shell {
+    position: absolute; inset: 0; overflow: hidden; background: #000;
+    border-radius: 0 0 var(--r) var(--r);
+    transition: border-radius 0.4s var(--spring-open);
+  }
+
+  /* Which activity's content is showing */
+  .for { display: none; }
+  [data-activity="music"] .for.music, [data-activity="timer"] .for.timer, [data-activity="calendar"] .for.calendar { display: contents; }
+  .page { display: none; }
+  [data-activity="music"] .page.music, [data-activity="timer"] .page.timer, [data-activity="calendar"] .page.calendar { display: flex; }
+
+  /* Compact wings */
+  .wings {
+    position: absolute; inset: 0 0 auto; height: 32px; display: flex; align-items: center;
+    transition: opacity 0.13s ease-out, filter 0.13s ease-out;
+  }
+  .wing { flex: 1; display: flex; justify-content: center; align-items: center; min-width: 0; color: rgb(255 255 255 / 0.92); }
+  .cam { width: 184px; flex: none; }
+  .hn[data-state="idle"] .wings { opacity: 0; }
+  .hn[data-state="expanded"] .wings { opacity: 0; filter: blur(3px); }
+  .sym { width: 13px; height: 13px; }
+  .cap { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .art { display: block; flex: none; background:
+    radial-gradient(circle at 50% 58%, #ffcf6e 0 19%, transparent 20%),
+    linear-gradient(180deg, #ff8a3d 0%, #e0453a 46%, #2a1a3a 47%, #14243d 100%); }
+  .art-s { width: 15px; height: 15px; border-radius: 3.3px; }
+  .art-l { width: 60px; height: 60px; border-radius: 13.2px; box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.08); }
+  .wave { display: flex; align-items: center; gap: 2px; width: 16px; height: 16px; justify-content: center; }
+  .wave i { width: 2px; height: 9px; border-radius: 2px; background: #ffa65c; animation: wave 0.9s ease-in-out infinite alternate; }
+  .wave i:nth-child(2) { animation-duration: 0.72s; animation-delay: -0.3s; }
+  .wave i:nth-child(3) { animation-duration: 0.83s; animation-delay: -0.5s; }
+  .wave i:nth-child(4) { animation-duration: 0.66s; animation-delay: -0.15s; }
+  @keyframes wave { from { height: 4px; } to { height: 13px; } }
+
+  /* Peek: one line under the camera */
+  .peek {
+    position: absolute; top: 32px; inset-inline: 0; height: 46px; padding: 0 24px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: rgb(255 255 255 / 0.65); white-space: nowrap; overflow: hidden;
+    opacity: 0; filter: blur(4px); transform: translateY(-22px);
+    transition: opacity 0.18s ease-out, filter 0.18s ease-out, transform 0.18s ease-out;
+  }
+  .hn[data-state="peek"] .peek { opacity: 1; filter: none; transform: none; transition-delay: 0.06s; }
+
+  /* Expanded pages */
+  .expanded {
+    position: absolute; top: 0; left: 0; width: 384px;
+    opacity: 0; filter: blur(5px); transform: translateY(-6px) scale(0.96); transform-origin: top center;
+    transition: opacity 0.18s ease-out, filter 0.18s ease-out, transform 0.18s ease-out;
+    pointer-events: none;
+  }
+  .hn[data-state="expanded"] .expanded { opacity: 1; filter: none; transform: none; transition-delay: 0.07s; }
+  .gear { position: absolute; top: 0; right: 24px; height: 40px; display: grid; place-items: center; color: rgb(255 255 255 / 0.5); }
+  .gear svg { width: 13px; height: 13px; }
+  .page { flex-direction: column; }
+  .top { height: 40px; padding: 0 24px; display: flex; align-items: center; }
+  .dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
+  .dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
+
+  .page.music { padding: 14px 27px 0; }
+  .player-top { display: flex; align-items: flex-start; gap: 9px; }
+  .meta { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding-top: 24px; white-space: nowrap; }
+  .meta b { font-size: 14px; font-weight: 700; color: rgb(255 255 255 / 0.9); line-height: 1.2; }
+  .meta span { font-size: 13px; font-weight: 600; color: rgb(255 255 255 / 0.45); line-height: 1.2; }
+  .wave-l { height: 60px; margin-right: 25px; }
+  .scrub { display: flex; align-items: center; gap: 10px; margin-top: 22px; height: 16px; font-size: 10px; font-weight: 500; color: rgb(255 255 255 / 0.45); font-variant-numeric: tabular-nums; }
+  .scrub span { width: 30px; } .scrub span:last-child { text-align: right; }
+  .scrub i { flex: 1; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.18); overflow: hidden; }
+  .scrub b { display: block; height: 100%; width: 36%; border-radius: inherit; background: #ffa65c; transition: width 1s linear; }
+  .transport { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 15px; height: 40px; }
+  .transport svg { width: 40px; height: 40px; padding: 11px; }
+  .t-sm { color: rgb(255 255 255 / 0.45); padding: 11.5px !important; }
+  .t-md { padding: 7.5px !important; }
+  .t-lg { width: 44px !important; padding: 7px !important; }
+
+  .page.timer, .page.calendar { padding-bottom: 0; }
+  .row { display: flex; align-items: center; gap: 4px; padding: 0 28px; height: 20px; }
+  .cap-sym { width: 11px; height: 11px; color: rgb(255 255 255 / 0.55); }
+  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: rgb(255 255 255 / 0.55); }
+  .badge { margin-left: auto; height: 20px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 600; }
+  .badge.success { color: #5fd47e; background: rgb(52 199 89 / 0.16); }
+  .badge.warning { color: #ffc35a; background: rgb(255 179 64 / 0.15); }
+  .timer-digits { padding: 0 28px; margin-top: 10px; font-family: var(--font-rounded); font-size: 34px; font-weight: 300; letter-spacing: -0.8px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .progress { margin: 12px 28px 0; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.14); overflow: hidden; }
+  .progress b { display: block; height: 100%; width: 3%; background: #fff; border-radius: inherit; transition: width 1s linear; }
+  hr { margin: 14px 28px 0; border: 0; border-top: 0.5px solid rgb(255 255 255 / 0.12); }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 28px; margin-top: 14px; }
+  .actions.start { justify-content: flex-start; margin-top: 12px; }
+  .btn { height: 28px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .btn svg { width: 12px; height: 12px; }
+  .btn.accent { background: #fff; color: #000; }
+  .btn.fill { background: rgb(255 255 255 / 0.12); }
+  .btn.danger { width: 28px; padding: 0; justify-content: center; background: rgb(255 80 70 / 0.18); }
+  .btn.danger i { width: 9px; height: 9px; border-radius: 2px; background: #ff6b5e; }
+  .ev-title { padding: 0 28px; margin-top: 8px; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; }
+  .ev-sub { padding: 0 28px; font-size: 13px; color: rgb(255 255 255 / 0.55); }
+
+  .pager { height: 24px; display: flex; justify-content: center; margin-top: 2px; }
+  .page.music ~ .pager { margin-top: 0; }
+  .pager i { width: 28px; height: 24px; display: grid; place-items: center; }
+  .pager i::before { content: ""; width: 4px; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.28); transition: width 0.28s var(--spring-open), background-color 0.2s; }
+  [data-activity="music"] .for-music::before, [data-activity="timer"] .for-timer::before, [data-activity="calendar"] .for-calendar::before { width: 16px; background: rgb(255 255 255 / 0.9); }
+
+  @media (prefers-reduced-motion: reduce) { .wave i { animation: none; } }
+</style>

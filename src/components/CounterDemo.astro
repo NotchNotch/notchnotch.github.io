@@ -1,0 +1,79 @@
+---
+// The Getting started counter, drawn the way NotchNotch draws it.
+---
+
+<div class="counter" data-counter>
+  <div class="c-notch" data-c-notch data-open="true" tabindex="0" role="button" aria-label="Counter activity. Click to open or close.">
+    <div class="c-shell">
+      <div class="c-compact">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="8" cy="8" r="6.2" /><path d="M8 5.2v5.6M5.2 8h5.6" stroke-linecap="round" /></svg>
+        <span class="c-cam"></span>
+        <span class="c-num" data-count>0</span>
+      </div>
+      <div class="c-expanded">
+        <div class="c-top"><span class="c-dots"><i></i><i></i><i></i></span></div>
+        <span class="c-title"><span data-count>0</span> little <span data-noun>steps</span></span>
+        <button type="button" class="c-button" data-more>One more</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const root = document.querySelector<HTMLElement>("[data-counter]");
+    if (!root) return;
+    const notch = root.querySelector<HTMLElement>("[data-c-notch]")!;
+    let count = 0;
+    root.querySelector("[data-more]")!.addEventListener("click", (event) => {
+      event.stopPropagation();
+      count++;
+      root.querySelectorAll<HTMLElement>("[data-count]").forEach((el) => {
+        el.textContent = String(count);
+        el.animate([{ transform: "translateY(-40%)", opacity: 0, filter: "blur(3px)" }, { transform: "none", opacity: 1, filter: "none" }], { duration: 250, easing: "cubic-bezier(0.22, 1, 0.36, 1)" });
+      });
+      root.querySelector("[data-noun]")!.textContent = count === 1 ? "step" : "steps";
+    });
+    const toggle = () => { notch.dataset.open = String(notch.dataset.open !== "true"); };
+    notch.addEventListener("click", toggle);
+    notch.addEventListener("keydown", (event) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); toggle(); } });
+  });
+</script>
+
+<style>
+  .counter { position: absolute; inset: 0; }
+  .c-notch {
+    --w: 244px; --h: 32px; --shoulder: 5px; --r: 12px;
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: var(--w); height: var(--h); color: #fff; cursor: pointer;
+    transition: width 0.36s var(--spring-close), height 0.36s var(--spring-close), --shoulder 0.36s var(--spring-close);
+  }
+  .c-notch[data-open="true"] {
+    --w: 384px; --h: 150px; --shoulder: 28px; --r: 34px; cursor: default;
+    transition: width 0.44s var(--spring-open), height 0.44s var(--spring-open), --shoulder 0.44s var(--spring-open);
+  }
+  .c-notch::before, .c-notch::after { content: ""; position: absolute; top: 0; width: var(--shoulder); height: var(--shoulder); }
+  .c-notch::before { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .c-notch::after { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .c-shell { position: absolute; inset: 0; background: #000; border-radius: 0 0 var(--r) var(--r); overflow: hidden; transition: border-radius 0.4s var(--spring-open); }
+  .c-compact, .c-expanded { position: absolute; transition: opacity 0.18s ease-out, filter 0.18s ease-out, transform 0.18s ease-out; }
+  .c-compact { inset: 0 0 auto; height: 32px; display: flex; align-items: center; }
+  .c-compact > svg, .c-num { flex: 1; display: flex; justify-content: center; }
+  .c-compact > svg { width: 13px; }
+  .c-cam { width: 184px; }
+  .c-num { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .c-expanded { inset: 0; width: 384px; display: flex; flex-direction: column; gap: 14px; opacity: 0; filter: blur(5px); transform: translateY(-6px) scale(0.96); transform-origin: top; pointer-events: none; }
+  [data-open="true"] .c-compact { opacity: 0; filter: blur(3px); transition-duration: 0.13s; }
+  [data-open="true"] .c-expanded { opacity: 1; filter: none; transform: none; pointer-events: auto; transition-delay: 0.07s; }
+  .c-top { height: 26px; padding: 0 24px; display: flex; align-items: flex-end; margin-bottom: -6px; }
+  .c-dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
+  .c-dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
+  .c-title { padding: 0 28px; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
+  .c-title span { display: inline-block; }
+  .c-button {
+    margin: 0 28px; align-self: flex-start; height: 28px; padding: 0 12px; border: 0; border-radius: 999px; cursor: pointer;
+    background: rgb(255 255 255 / 0.12); color: #fff; font-size: 13px; font-weight: 500; transition: background-color 0.15s, transform 0.15s;
+  }
+  .c-button:hover { background: rgb(255 255 255 / 0.18); }
+  .c-button:active { transform: scale(0.95); }
+</style>

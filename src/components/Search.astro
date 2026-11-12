@@ -1,0 +1,191 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<div class="palette" data-palette hidden transition:persist="search">
+  <div class="scrim" data-close></div>
+  <div class="panel" role="dialog" aria-modal="true" aria-label="Search">
+    <label class="field">
+      <Icon name="search" size={18} />
+      <input data-input type="text" placeholder="Search docs and extensions" autocomplete="off" spellcheck="false" aria-controls="search-results" />
+      <kbd>esc</kbd>
+    </label>
+    <div class="scroll" data-blob="li[data-index]" data-blob-follow="false">
+      <ul class="results" id="search-results" role="listbox" data-results></ul>
+    </div>
+    <div class="foot"><span><kbd>↑</kbd> <kbd>↓</kbd> to move</span><span><kbd>↵</kbd> to open</span></div>
+  </div>
+</div>
+
+<script>
+  import { navigate } from "astro:transitions/client";
+  import { blobs } from "../lib/blob";
+
+  type Item = { t: string; s: string; u: string; h?: string; x: string; i?: string };
+  const quick: Item[] = [
+    { t: "Store", s: "Go to", u: "/store/", x: "" },
+    { t: "Getting started", s: "Go to", u: "/docs/extensions/getting-started/", x: "" },
+    { t: "Using NotchNotch", s: "Go to", u: "/docs/guide/using-notchnotch/", x: "" },
+    { t: "Components", s: "Go to", u: "/docs/extensions/components/", x: "" },
+    { t: "Changelog", s: "Go to", u: "/changelog/", x: "" },
+  ];
+
+  let index: Item[] | null = null;
+  let shown: Item[] = [];
+  let selected = 0;
+
+  const root = () => document.querySelector<HTMLElement>("[data-palette]")!;
+  const input = () => root().querySelector<HTMLInputElement>("[data-input]")!;
+  const list = () => root().querySelector<HTMLUListElement>("[data-results]")!;
+
+  async function load() {
+    index ??= await fetch("/search.json").then((response) => response.json());
+    return index!;
+  }
+
+  // Every word must appear somewhere; a hit in the title beats one in a heading, which beats the text.
+  function score(item: Item, words: string[]) {
+    const title = item.t.toLowerCase(), heading = (item.h ?? "").toLowerCase(), text = item.x.toLowerCase();
+    let total = 0;
+    for (const word of words) {
+      if (title.startsWith(word)) total += 12;
+      else if (title.includes(word)) total += 8;
+      else if (heading.includes(word)) total += 5;
+      else if (text.includes(word)) total += 1;
+      else return 0;
+    }
+    return total + (item.h ? 0 : 1);
+  }
+
+  const escape = (text: string) => text.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]!);
+  function excerpt(text: string, words: string[]) {
+    if (!text) return "";
+    const lower = text.toLowerCase();
+    const at = Math.max(0, Math.min(...words.map((word) => lower.indexOf(word)).filter((i) => i >= 0), text.length) - 40);
+    let piece = escape((at > 0 ? "…" : "") + text.slice(at, at + 140));
+    for (const word of words) piece = piece.replace(new RegExp(`(${word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi"), "<mark>$1</mark>");
+    return piece;
+  }
+
+  function render(words: string[]) {
+    const ul = list();
+    if (!shown.length) {
+      ul.innerHTML = `<li class="empty">No results for “${escape(input().value)}”</li>`;
+      return;
+    }
+    ul.innerHTML = shown.map((item, i) => `
+      <li role="option" aria-selected="${i === selected}" data-index="${i}">
+        <a href="${item.u}">
+          ${item.i ? `<img src="${item.i}" alt="" width="28" height="28">` : `<span class="glyph">${item.s === "Store" ? "◆" : item.h ? "#" : "¶"}</span>`}
+          <span class="text">
+            <span class="name">${escape(item.h ?? item.t)}${item.h ? `<span class="in"> — ${escape(item.t)}</span>` : ""}</span>
+            ${words.length && item.x ? `<span class="snippet">${excerpt(item.x, words)}</span>` : ""}
+          </span>
+          <span class="section">${escape(item.s)}</span>
+        </a>
+      </li>`).join("");
+  }
+
+  async function update() {
+    const words = input().value.toLowerCase().split(/\s+/).filter(Boolean);
+    selected = 0;
+    if (!words.length) { shown = quick; render(words); return; }
+    const items = await load();
+    shown = items.map((item) => [item, score(item, words)] as const).filter(([, s]) => s > 0)
+      .sort((a, b) => b[1] - a[1]).slice(0, 12).map(([item]) => item);
+    render(words);
+  }
+
+  function move(by: number) {
+    if (!shown.length) return;
+    selected = (selected + by + shown.length) % shown.length;
+    for (const li of list().querySelectorAll<HTMLElement>("[data-index]")) {
+      const on = Number(li.dataset.index) === selected;
+      li.setAttribute("aria-selected", String(on));
+      if (on) li.scrollIntoView({ block: "nearest" });
+    }
+  }
+
+  function open() {
+    const el = root();
+    if (!el.hidden) return;
+    el.hidden = false;
+    blobs(el);
+    requestAnimationFrame(() => el.classList.add("visible"));
+    input().value = "";
+    update();
+    input().focus();
+    load();
+  }
+
+  function close() {
+    const el = root();
+    el.classList.remove("visible");
+    setTimeout(() => { el.hidden = true; }, 160);
+  }
+
+  function go(url: string) { close(); navigate(url); }
+
+  document.addEventListener("keydown", (event) => {
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") { event.preventDefault(); root().hidden ? open() : close(); return; }
+    if (event.key === "/" && root().hidden && !(event.target as HTMLElement).closest("input, textarea, [contenteditable]")) { event.preventDefault(); open(); return; }
+    if (root().hidden) return;
+    if (event.key === "Escape") close();
+    else if (event.key === "ArrowDown") { event.preventDefault(); move(1); }
+    else if (event.key === "ArrowUp") { event.preventDefault(); move(-1); }
+    else if (event.key === "Enter" && shown[selected]) { event.preventDefault(); go(shown[selected].u); }
+  });
+
+  document.addEventListener("click", (event) => {
+    const target = event.target as HTMLElement;
+    if (target.closest("[data-open-search]")) { open(); return; }
+    if (target.closest("[data-close]")) { close(); return; }
+    const link = target.closest<HTMLAnchorElement>("[data-results] a");
+    if (link) { event.preventDefault(); go(link.getAttribute("href")!); }
+  });
+
+  document.addEventListener("pointermove", (event) => {
+    const li = (event.target as HTMLElement).closest<HTMLElement>("[data-results] [data-index]");
+    if (li && Number(li.dataset.index) !== selected) move(Number(li.dataset.index) - selected);
+  });
+
+  document.addEventListener("input", (event) => {
+    if ((event.target as HTMLElement).matches("[data-input]")) update();
+  });
+</script>
+
+<style>
+  .palette { position: fixed; inset: 0; z-index: 100; display: flex; justify-content: center; padding: 12vh 16px 16px; }
+  .scrim { position: absolute; inset: 0; background: rgb(0 0 0 / 0.6); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.16s; }
+  .panel {
+    position: relative; width: 100%; max-width: 640px; max-height: min(560px, 76vh);
+    display: flex; flex-direction: column;
+    background: rgb(28 28 28 / 0.9); backdrop-filter: blur(40px) saturate(160%); -webkit-backdrop-filter: blur(40px) saturate(160%);
+    border-radius: 20px; box-shadow: inset 0 0 0 1px var(--line-strong), 0 40px 120px -20px rgb(0 0 0 / 0.9);
+    opacity: 0; transform: scale(0.97) translateY(-8px); transition: opacity 0.16s, transform 0.22s var(--ease);
+  }
+  .visible .scrim { opacity: 1; }
+  .visible .panel { opacity: 1; transform: none; }
+  .field { display: flex; align-items: center; gap: 12px; padding: 0 18px; height: 60px; border-bottom: 1px solid var(--line); color: var(--text-3); }
+  input { flex: 1; background: none; border: 0; outline: none; color: var(--text); font: 400 18px var(--font); letter-spacing: -0.01em; }
+  input::placeholder { color: var(--text-3); }
+  .scroll { overflow-y: auto; flex: 1; padding: 8px; }
+  .scroll :global(.blob) { --blob: rgb(255 255 255 / 0.08); --br: 12px; }
+  .results { list-style: none; margin: 0; padding: 0; }
+  .results :global(li a) {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px;
+  }
+  .results :global(img) { width: 28px; height: 28px; border-radius: 7px; flex: none; }
+  .results :global(.glyph) {
+    width: 28px; height: 28px; flex: none; display: grid; place-items: center; border-radius: 8px;
+    background: var(--raised); color: var(--text-3); font-size: 13px;
+  }
+  .results :global(.text) { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .results :global(.name) { font-size: 15px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .results :global(.in) { color: var(--text-3); }
+  .results :global(.snippet) { font-size: 13px; color: var(--text-3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .results :global(mark) { background: none; color: var(--accent-ink); }
+  .results :global(.section) { font-size: 12px; color: var(--text-3); flex: none; }
+  .results :global(.empty) { padding: 32px; text-align: center; color: var(--text-3); }
+  .foot { display: flex; gap: 20px; padding: 10px 18px; border-top: 1px solid var(--line); font-size: 12px; color: var(--text-3); }
+</style>

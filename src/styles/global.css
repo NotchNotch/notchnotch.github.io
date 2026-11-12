@@ -1,0 +1,226 @@
+/*
+ * Quiet, neutral and soft: grey surfaces instead of pure black, so the notch
+ * (the one truly black thing on the page) stands out. One accent, macOS blue.
+ */
+@property --shoulder { syntax: "<length>"; inherits: true; initial-value: 0px; }
+
+:root {
+  color-scheme: dark;
+
+  --bg: #121212;
+  --bg-sunk: #0e0e0e;
+  --card: #181818;
+  --stage: #131313;
+  --raised: #1f1f1f;
+  --chip: rgb(255 255 255 / 0.07);
+  --chip-hover: rgb(255 255 255 / 0.1);
+  --line: rgb(255 255 255 / 0.06);
+  --line-strong: rgb(255 255 255 / 0.1);
+
+  --text: #fff;
+  --text-2: rgb(202 202 202 / 0.72);
+  --text-3: #767676;
+  --text-4: #5a5a5a;
+
+  --accent: #2f8cff;
+  --accent-ink: #7db4ff;
+  --accent-soft: rgb(47 140 255 / 0.16);
+  --green: #34c759;
+  --red: #ff6b5e;
+
+  --material:
+    0 1px 3px 0 rgb(0 0 0 / 0.04),
+    inset 0 1px 0 0 rgb(255 255 255 / 0.04),
+    inset 0 0 0 1px rgb(0 0 0 / 0.06),
+    inset 0 -1px 0 0 rgb(0 0 0 / 0.06),
+    inset 0 0 0 1px rgb(196 196 196 / 0.08);
+  --float: 0 0 0 1px rgb(255 255 255 / 0.06), 0 2px 6px rgb(0 0 0 / 0.2), 0 12px 42px rgb(0 0 0 / 0.35);
+
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Helvetica Neue", system-ui, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Helvetica Neue", system-ui, sans-serif;
+  --font-rounded: ui-rounded, "SF Pro Rounded", -apple-system, system-ui, sans-serif;
+  --mono: "SF Mono", ui-monospace, "Roboto Mono", Menlo, monospace;
+
+  --nav-h: 52px;
+  --max: 1160px;
+
+  --quick: 150ms;
+  --fast: 250ms;
+  --medium: 350ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  /* The app's shell springs, as linear() curves: open (response 0.44, damping 0.82) and close (0.36, 0.9). */
+  --spring-open: linear(0, 0.06 3.1%, 0.24 7.2%, 0.5 12.6%, 0.74 18.6%, 0.9 24.6%, 0.99 31%, 1.03 37.6%, 1.035 44%, 1.02 53%, 1.004 66%, 0.999 80%, 1);
+  --spring-close: linear(0, 0.08 3.4%, 0.3 8.4%, 0.6 14.8%, 0.83 21.6%, 0.95 28.6%, 1.005 37%, 1.012 46%, 1.004 60%, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--nav-h) + 24px); background: var(--bg); }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 400 15px/1.6 var(--font);
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+  overflow-x: clip;
+  display: flex;
+  flex-direction: column;
+}
+.page { flex: 1; display: flex; flex-direction: column; }
+main { flex: 1; }
+img, svg, video { display: block; max-width: 100%; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; }
+::selection { background: rgb(47 140 255 / 0.35); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+[hidden] { display: none !important; }
+
+.container { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 24px; }
+
+/* Type */
+.display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.04;
+  margin: 0;
+  text-wrap: balance;
+}
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.6vw, 44px);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  margin: 0;
+  text-wrap: balance;
+}
+.label { font-size: 13px; font-weight: 500; color: var(--text-3); letter-spacing: 0; }
+.lede { font-size: 17px; line-height: 1.55; color: var(--text-2); margin: 0; text-wrap: pretty; }
+.muted { color: var(--text-2); }
+.fine { font-size: 12.5px; color: var(--text-3); }
+
+/* Buttons: 36pt pills with the layered material edge */
+.button {
+  --h: 36px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  height: var(--h); padding: 0 15px;
+  border-radius: 999px; border: 0;
+  font-size: 13.5px; font-weight: 500; white-space: nowrap;
+  cursor: pointer;
+  background: var(--raised); color: var(--text); box-shadow: var(--material);
+  transition: background-color var(--quick), transform var(--quick) var(--ease), color var(--quick);
+}
+.button:hover { background: #262626; }
+.button:active { transform: scale(0.97); }
+.button svg { width: 15px; height: 15px; flex: none; }
+.button.primary { background: #fff; color: #0d0d0d; box-shadow: 0 1px 3px rgb(0 0 0 / 0.2); }
+.button.primary:hover { background: #e8e8e8; }
+.button.accent { background: var(--accent); color: #fff; box-shadow: 0 1px 3px rgb(0 0 0 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.12); }
+.button.accent:hover { background: #1f7ff5; }
+.button.ghost { background: transparent; box-shadow: none; color: var(--text-2); }
+.button.ghost:hover { color: var(--text); background: var(--chip); }
+.button.large { --h: 42px; padding: 0 20px; font-size: 14.5px; }
+
+.link { color: var(--accent-ink); font-weight: 500; display: inline-flex; align-items: center; gap: 4px; transition: color var(--quick); }
+.link:hover { color: #a9cdff; }
+.link .arrow { transition: transform var(--fast) var(--ease); }
+.link:hover .arrow { transform: translateX(2px); }
+
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 26px; padding: 0 10px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 500; color: var(--text-2);
+  background: var(--chip);
+}
+.pro { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-ink); font-size: 11px; font-weight: 500; }
+
+kbd {
+  font: 500 11px/1 var(--font);
+  min-width: 20px; height: 20px; padding: 0 5px; border-radius: 6px;
+  display: inline-grid; place-items: center;
+  color: var(--text-3); background: var(--chip);
+}
+
+/* A card with a stage on top and a label row below: the site's main unit. */
+.stage-card {
+  display: flex; flex-direction: column; gap: 6px; padding: 6px;
+  background: var(--card); border-radius: 22px; box-shadow: var(--material);
+  transition: background-color var(--fast);
+}
+a.stage-card:hover { background: #1b1b1b; }
+.stage {
+  position: relative; overflow: hidden;
+  background: var(--stage); border-radius: 17px;
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.02);
+}
+.stage-label { display: flex; gap: 12px; align-items: center; padding: 10px 12px 12px; }
+.stage-label .tile {
+  width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center;
+  background: var(--raised); box-shadow: var(--material); color: var(--text-2);
+}
+.stage-label .tile img { width: 34px; height: 34px; border-radius: 9px; }
+.stage-label b { display: block; font-size: 14px; font-weight: 500; }
+.stage-label span { display: block; font-size: 13px; color: var(--text-3); line-height: 1.4; }
+
+/*
+ * Blob: one soft highlight that slides between the items of a group, following
+ * the pointer and resting on the current item. Set up by Blob.ts.
+ */
+[data-blob] { position: relative; isolation: isolate; }
+[data-blob] > .blob {
+  position: absolute; left: 0; top: 0; z-index: -1; pointer-events: none;
+  width: var(--bw, 0); height: var(--bh, 0);
+  transform: translate(var(--bx, 0), var(--by, 0));
+  border-radius: var(--br, 999px);
+  background: var(--blob, rgb(255 255 255 / 0.07));
+  opacity: var(--bo, 0);
+  transition: transform var(--fast) var(--ease), width var(--fast) var(--ease), height var(--fast) var(--ease), opacity var(--quick);
+}
+[data-blob].blob-instant > .blob { transition: opacity var(--quick); }
+
+/* Scroll reveal, only once scripts run */
+.js .reveal { opacity: 0; transform: translateY(14px); transition: opacity 0.7s var(--ease), transform 0.7s var(--ease); }
+.js .reveal.in { opacity: 1; transform: none; }
+.reveal[data-delay="1"] { transition-delay: 60ms; }
+.reveal[data-delay="2"] { transition-delay: 120ms; }
+.reveal[data-delay="3"] { transition-delay: 180ms; }
+.rise { animation: rise 0.8s var(--ease) both; }
+.rise[data-delay="1"] { animation-delay: 60ms; }
+.rise[data-delay="2"] { animation-delay: 120ms; }
+.rise[data-delay="3"] { animation-delay: 180ms; }
+@keyframes rise { from { opacity: 0; transform: translateY(10px); filter: blur(4px); } }
+
+/*
+ * Page transitions: the nav and the docs sidebar are persisted and never
+ * animate; only the content swaps, with a short fade and lift.
+ */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+::view-transition-old(page) { animation: var(--quick) var(--ease) both fade-out; }
+::view-transition-new(page) { animation: var(--medium) var(--ease) both fade-in; }
+::view-transition-group(page) { animation-duration: 0s; }
+@keyframes fade-out { to { opacity: 0; } }
+@keyframes fade-in { from { opacity: 0; transform: translateY(6px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; transition: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+
+/* Code */
+code, pre { font-family: var(--mono); }
+pre.astro-code {
+  margin: 0; padding: 16px 18px;
+  background: var(--bg-sunk) !important;
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px var(--line);
+  font-size: 13px; line-height: 1.7;
+  overflow-x: auto;
+  tab-size: 2;
+}
+
+/* In-page rearrangements (Store filters) reuse view transitions without the page fade. */
+html.local-vt::view-transition-old(page), html.local-vt::view-transition-new(page) { animation: none; }
+html.local-vt::view-transition-group(*) { animation-duration: var(--medium); animation-timing-function: var(--ease); }

@@ -1,0 +1,20 @@
+---
+// A Store screenshot on a neutral stage. Screenshots are the whole top of a
+// display, wallpaper included; this zooms in on the notch at the top center
+// and fades the wallpaper out into the stage.
+interface Props { src: string; alt: string; height?: number; zoom?: number; eager?: boolean }
+const { src, alt, height = 200, zoom = 1.5, eager = false } = Astro.props;
+---
+
+<div class="stage shot" style={`--shot-h: ${height}px; --shot-z: ${zoom}`}>
+  <img src={src} alt={alt} width="2000" height="1250" loading={eager ? "eager" : "lazy"} decoding="async" />
+</div>
+
+<style>
+  .shot { height: var(--shot-h); display: flex; justify-content: center; }
+  .shot img {
+    width: calc(var(--shot-z) * 100%); max-width: none; height: auto; flex: none; align-self: flex-start;
+    -webkit-mask-image: radial-gradient(58% 72% at 50% 0%, #000 52%, transparent 100%);
+    mask-image: radial-gradient(58% 72% at 50% 0%, #000 52%, transparent 100%);
+  }
+</style>

@@ -1,8 +1,10 @@
 ---
-import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-import { LinkButton } from "@astrojs/starlight/components";
-import { Marked } from "marked";
-import catalog from "../../../data/catalog.json";
+import Base from "../../../layouts/Base.astro";
+import ExtensionCard from "../../../components/ExtensionCard.astro";
+import Icon from "../../../components/Icon.astro";
+import { catalog, extensions, authorOf } from "../../../lib/site";
+import { renderReadme } from "../../../lib/readme";
+import "../../../styles/prose.css";
 
 export function getStaticPaths() {
   return catalog.extensions.map((entry) => {
@@ -12,96 +14,223 @@ export function getStaticPaths() {
 }
 
 const { entry } = Astro.props;
-const { manifest } = entry;
-const [author] = entry.handle.split("/");
+const manifest: any = entry.manifest;
+const author = authorOf(entry);
+const categories: string[] = manifest.categories ?? [];
+const screenshots: string[] = entry.screenshots ?? [];
+const id = entry.handle.replace("/", "-");
 
-/** README text comes from contributors: no raw HTML, only web and relative links. */
-function render(markdown, base) {
-  const escape = (text) => text.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-  const safe = (href) => {
-    try {
-      const url = new URL(href, base);
-      return ["https:", "http:", "mailto:"].includes(url.protocol) ? url.href : null;
-    } catch { return null; }
-  };
-  const marked = new Marked({
-    renderer: {
-      html: ({ text }) => escape(text),
-      link({ href, title, tokens }) {
-        const target = safe(href); const label = this.parser.parseInline(tokens);
-        return target ? `<a href="${escape(target)}"${title ? ` title="${escape(title)}"` : ""} rel="nofollow noopener">${label}</a>` : label;
-      },
-      image({ href, text }) {
-        const target = safe(href);
-        return target ? `<img src="${escape(target)}" alt="${escape(text)}" loading="lazy">` : escape(text);
-      },
-    },
-  });
-  // The page already shows the name; drop a leading heading that repeats it.
-  return marked.parse(markdown.replace(/^#\s+.*\n+/, ""));
-}
-
-const readme = entry.readmeText ? render(entry.readmeText, entry.readme) : "";
+const readme = entry.readmeText ? renderReadme(entry.readmeText, entry.readme) : "";
 const reaches = [
-  ...(manifest.network ?? []).map((host) => ({ kind: "Website", value: host })),
-  ...(manifest.imageHosts ?? []).map((host) => ({ kind: "Pictures from", value: host })),
-  ...Object.entries(manifest.connections ?? {}).map(([name, item]) => item.transport === "stdio"
-    ? { kind: "Native tool", value: `${name} (${item.executable})` }
-    : { kind: "Local service", value: item.endpoint ?? name }),
+  ...(manifest.network ?? []).map((host: string) => ({ icon: "globe", kind: "Website", value: host })),
+  ...(manifest.imageHosts ?? []).map((host: string) => ({ icon: "eye", kind: "Pictures from", value: host })),
+  ...Object.entries(manifest.connections ?? {}).map(([name, item]: [string, any]) => item.transport === "stdio"
+    ? { icon: "terminal", kind: "Native tool", value: `${name} (${item.executable})` }
+    : { icon: "bolt", kind: "Local service", value: item.endpoint ?? name }),
+  ...(manifest.capabilities ?? []).map((name: string) => ({ icon: "cpu", kind: "System capability", value: name })),
 ];
-const secrets = (manifest.preferences ?? []).filter((item) => item.type === "password").map((item) => item.title);
-const published = entry.published ? new Date(entry.published).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : null;
+const secrets: string[] = (manifest.preferences ?? []).filter((item: any) => item.type === "password").map((item: any) => item.title);
+const date = (value?: string) => value ? new Date(value).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "—";
+const size = entry.package?.size ? `${Math.round(entry.package.size / 1024)} KB` : "—";
+const facts = [
+  ["Version", manifest.version],
+  ["Category", categories[0] ?? "—"],
+  ["Size", size],
+  ["Updated", date(entry.published)],
+  ["Requires", `NotchNotch ${entry.minimumAppVersion ?? "0.7.0"}`],
+  ["License", manifest.license ?? "—"],
+];
+const related = extensions.filter((other) => other.handle !== entry.handle)
+  .map((other) => ({ other, score: Number((other.manifest.categories ?? []).some((c) => categories.includes(c))) }))
+  .sort((a, b) => b.score - a.score).slice(0, 3).map(({ other }) => other);
 ---
 
-<StarlightPage frontmatter={{ title: manifest.name, description: manifest.description, tableOfContents: false }}>
-  <div class="header">
-    {entry.icon && <img class="icon" src={entry.icon} width="96" height="96" alt="" />}
-    <div>
-      <p class="lead">{manifest.description}</p>
-      <p class="meta">
-        by <a href={`https://github.com/${author}`}>{author}</a> · Version {manifest.version}
-        {published && <> · {published}</>}
-        {(manifest.categories ?? []).length > 0 && <> · {manifest.categories.join(", ")}</>}
-      </p>
-      <div class="actions">
-        <LinkButton href={`notchnotch://extensions/${entry.handle}`} icon="download">Open in NotchNotch</LinkButton>
-        {manifest.repository && <LinkButton href={manifest.repository} variant="secondary" icon="github">Source</LinkButton>}
+<Base title={manifest.name} description={manifest.description} image={screenshots[0]}>
+  <div class="container page">
+    <a class="back" href="/store/"><Icon name="chevron" size={13} /> Store</a>
+
+    <header class="hero">
+      {entry.icon ? <img class="icon" src={entry.icon} width="112" height="112" alt="" transition:name={`icon-${id}`} /> : <span class="icon" />}
+      <div class="hero-text">
+        <h1>{manifest.name}</h1>
+        <p class="lede">{manifest.description}</p>
+        <p class="by"><a href={`https://github.com/${author}`}>{author}</a>{categories.length > 0 && <> · {categories.join(", ")}</>}</p>
       </div>
-      <p class="fine">Opens this extension in the app's Store, where you review and install it. Needs NotchNotch {entry.minimumAppVersion ?? "0.7.0"} or later. <a href="/#install">Get NotchNotch</a></p>
+      <div class="actions">
+        <a class="button accent large" href={`notchnotch://extensions/${entry.handle}`}><Icon name="download" /> Get</a>
+        {manifest.repository && <a class="button large" href={manifest.repository}><Icon name="github" size={15} /> Source</a>}
+      </div>
+    </header>
+
+    {screenshots.length > 0 && (
+      <section class="gallery" data-gallery aria-roledescription="carousel" aria-label={`${manifest.name} screenshots`}>
+        <div class="stage viewport" data-viewport tabindex="0">
+          <div class="track" data-track>
+            {screenshots.map((src, i) => (
+              <figure class="slide" aria-label={`${i + 1} of ${screenshots.length}`}>
+                <img src={src} width="2000" height="1250" alt={`${manifest.name} in the notch, screenshot ${i + 1}`} loading={i ? "lazy" : "eager"} />
+              </figure>
+            ))}
+          </div>
+          {screenshots.length > 1 && <>
+            <button class="nav-btn prev" type="button" data-prev aria-label="Previous screenshot"><Icon name="chevron" size={15} /></button>
+            <button class="nav-btn next" type="button" data-next aria-label="Next screenshot"><Icon name="chevron" size={15} /></button>
+          </>}
+        </div>
+        {screenshots.length > 1 && (
+          <div class="thumbs" role="tablist" data-blob="button" data-blob-follow="false">
+            {screenshots.map((src, i) => (
+              <button type="button" role="tab" data-thumb={i} aria-selected={i === 0 ? "true" : "false"} aria-label={`Screenshot ${i + 1}`}>
+                <img src={src} alt="" width="200" height="125" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
+      </section>
+    )}
+
+    <dl class="facts">
+      {facts.map(([label, value]) => <div><dt>{label}</dt><dd>{value}</dd></div>)}
+    </dl>
+
+    <div class="body">
+      <section class="about">
+        <h2>About</h2>
+        {readme ? <div class="prose" set:html={readme} /> : <p class="muted">{manifest.description}</p>}
+        {entry.changelog && <a class="link" href={entry.changelog}>Version history <span class="arrow">→</span></a>}
+      </section>
+
+      <aside class="access">
+        <h2><Icon name="shield" size={15} /> What it can reach</h2>
+        {reaches.length === 0 && secrets.length === 0 ? (
+          <p class="none"><Icon name="lock" size={15} /> Nothing outside NotchNotch: no websites, apps or services.</p>
+        ) : (
+          <ul>
+            {reaches.map((item) => <li><span class="ai"><Icon name={item.icon as any} size={14} /></span><div><b>{item.kind}</b><code>{item.value}</code></div></li>)}
+            {secrets.length > 0 && <li><span class="ai"><Icon name="key" size={14} /></span><div><b>Kept in your Keychain</b><span>{secrets.join(", ")}</span></div></li>}
+          </ul>
+        )}
+        <p class="fine">The app shows this again before installing, and asks again if an update wants anything new.</p>
+        <p class="fine">Get opens it in the app's Store. <a href="/#install">No NotchNotch yet?</a></p>
+      </aside>
     </div>
+
+    {related.length > 0 && (
+      <section class="more">
+        <h2>More extensions</h2>
+        <div class="more-grid">{related.map((other) => <ExtensionCard entry={other} />)}</div>
+      </section>
+    )}
   </div>
+</Base>
 
-  {(entry.screenshots ?? []).length > 0 && (
-    <div class="shots">
-      {entry.screenshots.map((url, index) => <img src={url} width="2000" height="1250" alt={`${manifest.name} in the notch, screenshot ${index + 1}`} loading={index ? "lazy" : "eager"} />)}
-    </div>
-  )}
+<script>
+  document.addEventListener("astro:page-load", () => {
+    const gallery = document.querySelector<HTMLElement>("[data-gallery]");
+    if (!gallery) return;
+    const viewport = gallery.querySelector<HTMLElement>("[data-viewport]")!;
+    const track = gallery.querySelector<HTMLElement>("[data-track]")!;
+    const thumbs = [...gallery.querySelectorAll<HTMLButtonElement>("[data-thumb]")];
+    const count = track.children.length;
+    let index = 0;
 
-  <h2>What it can reach</h2>
-  {reaches.length === 0 && secrets.length === 0 ? (
-    <p>Nothing outside NotchNotch: no websites, apps or services.</p>
-  ) : (
-    <ul>
-      {reaches.map((item) => <li><strong>{item.kind}:</strong> <code>{item.value}</code></li>)}
-      {secrets.length > 0 && <li><strong>Kept in your Keychain:</strong> {secrets.join(", ")}</li>}
-    </ul>
-  )}
-  <p class="fine">The app shows this again before installing, and asks again if an update wants anything new.</p>
-
-  {readme && (<><h2>About</h2><div class="readme" set:html={readme} /></>)}
-
-  {entry.changelog && <p><a href={entry.changelog}>Version history</a></p>}
-</StarlightPage>
+    const go = (next: number) => {
+      index = (next + count) % count;
+      track.style.transform = `translateX(${-index * 100}%)`;
+      thumbs.forEach((thumb, i) => thumb.setAttribute("aria-selected", String(i === index)));
+    };
+    gallery.querySelector("[data-prev]")?.addEventListener("click", () => go(index - 1));
+    gallery.querySelector("[data-next]")?.addEventListener("click", () => go(index + 1));
+    thumbs.forEach((thumb, i) => thumb.addEventListener("click", () => go(i)));
+    viewport.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowLeft") go(index - 1);
+      if (event.key === "ArrowRight") go(index + 1);
+    });
+    let start: number | null = null;
+    viewport.addEventListener("pointerdown", (event) => { start = event.clientX; });
+    viewport.addEventListener("pointerup", (event) => {
+      if (start === null) return;
+      const moved = event.clientX - start; start = null;
+      if (Math.abs(moved) > 40 && count > 1) go(index + (moved < 0 ? 1 : -1));
+    });
+  });
+</script>
 
 <style>
-  .header { display: flex; gap: 1.5rem; align-items: flex-start; }
-  .icon { width: 96px; height: 96px; border-radius: 22px; flex: none; }
-  .lead { font-size: var(--sl-text-lg); color: var(--sl-color-white); margin: 0; }
-  .meta { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
-  .actions { display: flex; flex-wrap: wrap; gap: 0.75rem; }
-  .fine { color: var(--sl-color-gray-3); font-size: var(--sl-text-sm); }
-  .shots { display: grid; gap: 1rem; margin-top: 2rem; }
-  .shots img { width: 100%; height: auto; border-radius: 0.9rem; }
-  .readme :global(img) { max-width: 100%; height: auto; }
-  @media (max-width: 40rem) { .header { flex-direction: column; } }
+  .page { padding-top: calc(var(--nav-h) + 28px); max-width: 1040px; }
+  .back { display: inline-flex; align-items: center; gap: 4px; font-size: 13px; color: var(--text-3); transition: color var(--quick); }
+  .back :global(svg) { transform: rotate(180deg); }
+  .back:hover { color: var(--text); }
+
+  .hero { display: flex; gap: 24px; align-items: center; margin-top: 28px; }
+  .icon { width: 112px; height: 112px; flex: none; }
+  .hero-text { flex: 1; min-width: 0; }
+  .hero h1 { font-family: var(--font-display); font-size: clamp(30px, 4vw, 40px); font-weight: 600; letter-spacing: -0.03em; line-height: 1.1; margin: 0; }
+  .hero .lede { margin-top: 6px; font-size: 16px; }
+  .by { margin: 8px 0 0; font-size: 13px; color: var(--text-3); }
+  .by a { color: var(--text-2); }
+  .by a:hover { color: var(--text); }
+  .actions { display: flex; gap: 8px; align-self: center; }
+
+  .gallery { margin-top: 36px; }
+  .viewport { position: relative; aspect-ratio: 2.3; border-radius: 22px; touch-action: pan-y; }
+  .track { display: flex; height: 100%; transition: transform 0.55s var(--spring-open); }
+  .slide { margin: 0; flex: 0 0 100%; display: flex; justify-content: center; overflow: hidden; }
+  .slide img {
+    width: 125%; max-width: none; height: auto; align-self: flex-start; flex: none; user-select: none; -webkit-user-drag: none;
+    -webkit-mask-image: radial-gradient(58% 80% at 50% 0%, #000 55%, transparent 100%);
+    mask-image: radial-gradient(58% 80% at 50% 0%, #000 55%, transparent 100%);
+  }
+  .nav-btn {
+    position: absolute; top: 50%; translate: 0 -50%; width: 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer;
+    display: grid; place-items: center; color: var(--text); background: rgb(40 40 40 / 0.7); backdrop-filter: blur(12px);
+    box-shadow: var(--material); opacity: 0; transition: opacity var(--fast), background-color var(--quick);
+  }
+  .viewport:hover .nav-btn, .nav-btn:focus-visible { opacity: 1; }
+  .nav-btn:hover { background: rgb(60 60 60 / 0.8); }
+  .prev { left: 14px; } .prev :global(svg) { transform: rotate(180deg); }
+  .next { right: 14px; }
+  .thumbs { display: flex; justify-content: center; gap: 6px; margin-top: 12px; }
+  .thumbs :global(.blob) { --blob: transparent; --br: 12px; box-shadow: 0 0 0 2px var(--text); }
+  .thumbs button { width: 92px; aspect-ratio: 1.6; padding: 0; border: 0; border-radius: 12px; overflow: hidden; cursor: pointer; background: var(--stage); opacity: 0.55; transition: opacity var(--fast); }
+  .thumbs button[aria-selected="true"], .thumbs button:hover { opacity: 1; }
+  .thumbs img { width: 100%; height: 100%; object-fit: cover; }
+
+  .facts { display: grid; grid-template-columns: repeat(6, 1fr); margin: 28px 0 0; padding: 4px; border-radius: 18px; background: var(--card); box-shadow: var(--material); }
+  .facts div { padding: 12px 14px; }
+  .facts div + div { box-shadow: -1px 0 0 var(--line); }
+  .facts dt { font-size: 12px; color: var(--text-3); }
+  .facts dd { margin: 2px 0 0; font-size: 14px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  .body { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 40px; margin-top: 56px; align-items: start; }
+  .about h2, .more h2 { font-size: 20px; letter-spacing: -0.02em; font-weight: 600; margin: 0; }
+  .about .prose > :global(:first-child) { margin-top: 12px; }
+  .about .prose :global(h2) { font-size: 17px; margin-top: 30px; }
+  .access { position: sticky; top: calc(var(--nav-h) + 24px); padding: 18px; border-radius: 20px; background: var(--card); box-shadow: var(--material); }
+  .access h2 { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; margin: 0 0 12px; }
+  .access ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+  .access li { display: flex; gap: 10px; align-items: flex-start; padding: 9px; border-radius: 12px; background: var(--stage); }
+  .access li div { display: flex; flex-direction: column; min-width: 0; font-size: 13px; }
+  .access li b { font-weight: 500; }
+  .access li code, .access li span:not(.ai) { font-size: 12px; color: var(--text-3); overflow-wrap: anywhere; }
+  .ai { width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; flex: none; background: var(--raised); color: var(--text-2); }
+  .none { display: flex; gap: 8px; align-items: flex-start; margin: 0; font-size: 13px; color: var(--text-2); padding: 10px; border-radius: 12px; background: rgb(52 199 89 / 0.08); }
+  .none :global(svg) { color: var(--green); flex: none; margin-top: 2px; }
+  .access .fine { margin: 12px 0 0; }
+  .access .fine a { color: var(--text-2); box-shadow: inset 0 -1px 0 var(--line-strong); }
+
+  .more { margin-top: 96px; }
+  .more-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+
+  @media (max-width: 860px) {
+    .hero { flex-wrap: wrap; }
+    .icon { width: 80px; height: 80px; }
+    .actions { width: 100%; }
+    .viewport { aspect-ratio: 1.7; }
+    .facts { grid-template-columns: repeat(3, 1fr); }
+    .facts div:nth-child(4) { box-shadow: none; }
+    .body { grid-template-columns: 1fr; }
+    .access { position: static; }
+    .more-grid { grid-template-columns: 1fr; }
+  }
 </style>

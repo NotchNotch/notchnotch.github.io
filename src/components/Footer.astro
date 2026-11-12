@@ -1,0 +1,52 @@
+---
+import Icon from "./Icon.astro";
+import { release, repository, storeRepository } from "../lib/site";
+
+const columns = [
+  { title: "Product", links: [["Download", release.url], ["Store", "/store/"], ["Changelog", "/changelog/"], ["Guide", "/docs/guide/using-notchnotch/"]] },
+  { title: "Developers", links: [["Getting started", "/docs/extensions/getting-started/"], ["Components", "/docs/extensions/components/"], ["Manifest", "/docs/extensions/manifest/"], ["Publishing", "/docs/extensions/publishing/"]] },
+  { title: "Project", links: [["GitHub", repository], ["Extensions repository", storeRepository], ["Contributing", "/docs/contributing/"], ["Architecture", "/docs/internals/architecture/"]] },
+  { title: "Trust", links: [["Privacy", "/privacy/"], ["Security", "/security/"], ["Store catalog", "/docs/internals/store-catalog/"], ["Performance", "/docs/internals/performance/"]] },
+];
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="top">
+      <div class="about">
+        <a href="/" class="brand"><Icon name="logo" size={20} /> NotchNotch</a>
+        <p>The notch on your Mac, put to work. Free and open source, for macOS 14 or later.</p>
+      </div>
+      {columns.map((column) => (
+        <div class="column">
+          <h3>{column.title}</h3>
+          <ul>{column.links.map(([label, href]) => <li><a href={href}>{label}</a></li>)}</ul>
+        </div>
+      ))}
+    </div>
+    <div class="bottom">
+      <span>Version {release.version} · Developer preview</span>
+      <span>No account. No analytics. Everything stays on your Mac.</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer { border-top: 1px solid var(--line); padding: 56px 0 36px; margin-top: 140px; font-size: 13px; }
+  .top { display: grid; grid-template-columns: 1.6fr repeat(4, 1fr); gap: 32px; }
+  .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; font-size: 14px; }
+  .about p { color: var(--text-3); max-width: 26ch; margin: 14px 0 0; line-height: 1.5; }
+  h3 { font-size: 13px; font-weight: 500; color: var(--text); margin: 0 0 14px; }
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+  li a { color: var(--text-3); transition: color 0.2s; }
+  li a:hover { color: var(--text); }
+  .bottom {
+    display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--line);
+    color: var(--text-3); font-size: 13px;
+  }
+  @media (max-width: 860px) {
+    .top { grid-template-columns: 1fr 1fr; }
+    .about { grid-column: 1 / -1; }
+  }
+</style>
