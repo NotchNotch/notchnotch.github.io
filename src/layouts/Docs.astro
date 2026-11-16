@@ -46,7 +46,7 @@ const toc = headings.filter((heading) => heading.depth >= 2 && heading.depth <= 
       </nav>
     </aside>
 
-    <article class="article" transition:name="page" data-active-id={activeId}>
+    <article class="article" transition:name="doc" data-active-id={activeId}>
       <header class="page-head">
         {current && <span class="crumb">{current.group}</span>}
         <h1>{title}</h1>

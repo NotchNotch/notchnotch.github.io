@@ -201,6 +201,11 @@ a.stage-card:hover { background: #1b1b1b; }
 ::view-transition-old(page) { animation: var(--quick) var(--ease) both fade-out; }
 ::view-transition-new(page) { animation: var(--medium) var(--ease) both fade-in; }
 ::view-transition-group(page) { animation-duration: 0s; }
+/* A docs article is its own layer: between docs pages it fades in place, and
+   leaving for a page without the sidebar it never stretches to that page's size. */
+::view-transition-old(doc) { animation: var(--quick) var(--ease) both fade-out; }
+::view-transition-new(doc) { animation: var(--medium) var(--ease) both fade-in; }
+::view-transition-group(doc) { animation-duration: 0s; }
 @keyframes fade-out { to { opacity: 0; } }
 @keyframes fade-in { from { opacity: 0; transform: translateY(6px); } }
 
