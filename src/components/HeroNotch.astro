@@ -199,15 +199,23 @@ const tint = "#d47c6c"; // what Music takes from the cover below
       });
     }, 1000);
 
-    const observer = new IntersectionObserver(([entry]) => {
-      const was = visible; visible = entry.isIntersecting;
-      if (visible && !was) play(index); else if (!visible) clear();
-    });
+    // Off screen (the small-screen stage), or closed into the bar after a scroll: wait.
+    let seen = true;
+    const sync = () => {
+      const was = visible;
+      visible = seen && !("tucked" in notch.dataset);
+      if (visible && !was) play(index);
+      else if (!visible && was) { clear(); tabs.forEach((tab) => tab.classList.remove("running")); delete notch.dataset.drag; notch.dataset.state = "idle"; }
+    };
+    const observer = new IntersectionObserver(([entry]) => { seen = entry.isIntersecting; sync(); });
     observer.observe(notch);
+    const tucks = new MutationObserver(sync);
+    tucks.observe(notch, { attributes: true, attributeFilter: ["data-tucked"] });
 
     // The notch drops in from the camera, as when the app launches.
-    timers.push(window.setTimeout(() => play(0), reduced ? 0 : 500));
-    document.addEventListener("astro:before-swap", () => { clear(); clearInterval(tick); observer.disconnect(); }, { once: true });
+    if (!("tucked" in notch.dataset)) timers.push(window.setTimeout(() => play(0), reduced ? 0 : 500));
+    else visible = false;
+    document.addEventListener("astro:before-swap", () => { clear(); clearInterval(tick); observer.disconnect(); tucks.disconnect(); }, { once: true });
   });
 </script>
 

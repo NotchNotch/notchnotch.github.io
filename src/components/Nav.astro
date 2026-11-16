@@ -53,7 +53,19 @@ const links = [
     document.documentElement.classList.toggle("locked", open);
   };
   menu.addEventListener("click", () => setOpen(!nav.classList.contains("open")));
-  addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 4), { passive: true });
+  // On the landing page the bar is the menu bar the notch hangs from: black
+  // like the notch until the page has carried the notch up behind it.
+  function update() {
+    const notch = document.querySelector<HTMLElement>("[data-hero-notch]");
+    const hanging = !!notch && matchMedia("(min-width: 1200px)").matches;
+    nav.classList.toggle("over-notch", hanging);
+    // The notch stays put under the bar and closes up into it once the page moves.
+    const tucked = hanging && scrollY > 8;
+    nav.classList.toggle("scrolled", hanging ? tucked : scrollY > 4);
+    if (notch) { if (tucked) notch.dataset.tucked = ""; else delete notch.dataset.tucked; }
+  }
+  addEventListener("scroll", update, { passive: true });
+  addEventListener("resize", update, { passive: true });
 
   function mark() {
     const path = location.pathname;
@@ -63,8 +75,7 @@ const links = [
       const best = anchors.filter((a) => path.startsWith(a.dataset.match!)).sort((a, b) => b.dataset.match!.length - a.dataset.match!.length)[0];
       anchors.forEach((a) => a === best ? a.setAttribute("aria-current", "page") : a.removeAttribute("aria-current"));
     }
-    nav.classList.toggle("scrolled", scrollY > 4);
-    nav.classList.toggle("over-notch", !!document.querySelector("[data-hero-notch]"));
+    update();
     setOpen(false);
     blobs(nav);
   }
@@ -83,6 +94,19 @@ const links = [
     opacity: 0; transition: opacity var(--fast);
   }
   .nav.scrolled::before, .nav.open::before { opacity: 1; }
+  .nav::before { transition: opacity var(--fast), background-color var(--medium) var(--ease), box-shadow var(--medium); }
+  .nav.over-notch::before { opacity: 1; background: #000; box-shadow: none; }
+  /* Black again at once on the way up; translucent only once the notch has closed into it. */
+  .nav.over-notch.scrolled::before { background: rgb(18 18 18 / 0.78); box-shadow: 0 1px 0 var(--line); transition-delay: 0.3s; }
+
+  /* View transitions draw their snapshots above the page, so the bar gets its
+     own layer on top. A snapshot can't blur what's behind it, so it goes
+     nearly opaque for the moment instead. */
+  .nav { view-transition-name: nav; }
+  :global(::view-transition-old(nav)) { display: none; }
+  :global(::view-transition-new(nav)), :global(::view-transition-group(nav)) { animation: none; }
+  :global(html:active-view-transition) .nav::before { background: rgb(18 18 18 / 0.96); transition: none; }
+  :global(html:active-view-transition) .nav.over-notch:not(.scrolled)::before { background: #000; }
 
   .bar { height: var(--nav-h); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: 0 14px 0 20px; }
   .side { display: flex; align-items: center; gap: 6px; min-width: 0; }

@@ -205,13 +205,24 @@ start(<Counter />);`;
     </div>
   </section>
 
-  <!-- Final -->
-  <section class="final container reveal">
-    <div class="final-notch" aria-hidden="true"><MiniNotch variant="compact" /></div>
-    <h2 class="display final-title">Put your notch to work.</h2>
-    <div class="hero-actions">
-      <a class="button primary large" href={release.url}><Icon name="download" /> Download {release.version}</a>
-      <a class="button ghost large" href="/docs/guide/using-notchnotch/">Read the guide <span>→</span></a>
+  <!-- Final: the notch asks, as an extension's question would -->
+  <section class="final reveal">
+    <div class="ask">
+      <div class="ask-controls" aria-hidden="true">
+        <svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg>
+        <svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="ask-head">
+        <span class="ask-icon"><Icon name="logo" size={18} /></span>
+        <div>
+          <h2 class="ask-title">Put your notch to work?</h2>
+          <p class="ask-sub">NotchNotch {release.version} · Free<span class="ask-os"> · macOS 14 or later</span></p>
+        </div>
+      </div>
+      <div class="ask-actions">
+        <a class="ask-btn" href="/docs/guide/using-notchnotch/">Read the guide</a>
+        <a class="ask-btn on" href={release.url}><Icon name="download" size={14} /> Download</a>
+      </div>
     </div>
     <p class="fine">Not notarized yet: the first time, choose Open Anyway in System Settings › Privacy &amp; Security. <a href="/docs/guide/using-notchnotch/#install">How</a></p>
   </section>
@@ -219,8 +230,18 @@ start(<Counter />);`;
 
 <style>
   /* Hero */
-  .hero { position: relative; padding-top: 340px; overflow-x: clip; }
-  .notch-anchor { position: absolute; inset: 0 0 auto; height: 0; z-index: 40; }
+  .hero { position: relative; padding-top: 380px; overflow-x: clip; }
+  /* Hangs from the bar, as the notch hangs from the menu bar */
+  .notch-anchor {
+    position: fixed; inset: var(--nav-h) 0 auto; height: 0; z-index: 40;
+    transition: transform 0.32s var(--ease) 0.08s, visibility 0s;
+  }
+  /* Scrolled: the notch closes to the camera and goes up into the bar, then
+     hides, so it doesn't show through the bar once that turns translucent. */
+  .notch-anchor:has(:global([data-tucked])) {
+    transform: translateY(-64px); visibility: hidden;
+    transition: transform 0.32s var(--ease) 0.1s, visibility 0s 0.45s;
+  }
   .hero-glow {
     position: absolute; left: 50%; top: -160px; width: 900px; height: 520px; transform: translateX(-50%); z-index: -1; pointer-events: none;
     background: radial-gradient(closest-side, rgb(255 255 255 / 0.06), transparent);
@@ -309,21 +330,50 @@ start(<Counter />);`;
   .sheet-actions span { height: 28px; padding: 0 14px; display: grid; place-items: center; border-radius: 999px; background: rgb(255 255 255 / 0.08); }
   .sheet-actions .go { background: var(--accent); }
 
-  .final { padding-top: 170px; display: flex; flex-direction: column; align-items: center; text-align: center; }
-  .final-notch { position: relative; width: 260px; height: 40px; margin-bottom: 36px; }
-  .final-notch :global(.mini) { --mz: 1; }
-  .final-title { font-size: clamp(36px, 5vw, 56px); }
-  .final .fine { margin-top: 18px; max-width: 440px; }
+  /* A prompt in the open notch, hanging from a hairline as the notch hangs from the menu bar */
+  .final { margin-top: 170px; border-top: 1px solid var(--line-strong); display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .ask {
+    --shoulder: 28px;
+    position: relative; width: min(440px, calc(100% - 2 * var(--shoulder) - 16px)); margin-top: -1px;
+    padding: 0 28px 24px; background: #000; border-radius: 0 0 34px 34px; text-align: left;
+    box-shadow: 0 14px 40px rgb(0 0 0 / 0.45);
+  }
+  .ask::before, .ask::after { content: ""; position: absolute; top: 0; width: var(--shoulder); height: var(--shoulder); }
+  .ask::before { right: 100%; background: radial-gradient(circle at 0 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .ask::after { left: 100%; background: radial-gradient(circle at 100% 100%, transparent calc(var(--shoulder) - 0.5px), #000 var(--shoulder)); }
+  .ask-controls { height: 40px; display: flex; justify-content: flex-end; align-items: center; gap: 2px; margin-right: -4px; color: rgb(255 255 255 / 0.5); }
+  .ask-controls svg { width: 24px; height: 24px; padding: 6px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+  .ask-head { display: flex; gap: 12px; align-items: center; }
+  .ask-icon { width: 36px; height: 36px; flex: none; border-radius: 9px; background: #fff; color: #000; display: grid; place-items: center; }
+  .ask-title { margin: 0; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; line-height: 1.25; }
+  .ask-sub { margin: 2px 0 0; font-size: 12.5px; color: rgb(255 255 255 / 0.55); }
+  .ask-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 22px; }
+  .ask-btn {
+    height: 32px; padding: 0 14px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px;
+    font-size: 13.5px; font-weight: 500; background: rgb(255 255 255 / 0.12); color: #fff;
+    transition: background-color var(--quick), transform var(--quick);
+  }
+  .ask-btn:hover { background: rgb(255 255 255 / 0.18); }
+  .ask-btn.on { background: #fff; color: #000; }
+  .ask-btn.on:hover { background: rgb(255 255 255 / 0.88); }
+  .ask-btn:active { transform: scale(0.97); }
+  .final .fine { margin-top: 28px; max-width: 440px; padding: 0 20px; }
   .final .fine a { color: var(--text-2); text-decoration: underline; text-underline-offset: 3px; }
 
   @media (max-width: 1199px) {
     .hero { padding-top: calc(var(--nav-h) + 16px); }
     .notch-anchor {
-      position: relative; height: 230px; margin: 0 16px; border-radius: 22px;
+      position: relative; inset: auto; transform: none !important; height: 230px; margin: 0 16px; border-radius: 22px;
       background: var(--stage); box-shadow: var(--material); overflow: hidden;
     }
     .notch-anchor :global(.hn) { --zoom: 1; }
     .hero-title { margin-top: 36px; }
+  }
+  @media (max-width: 480px) {
+    .ask { padding: 0 20px 20px; }
+    .ask-os { display: none; }
+    .ask-actions { justify-content: stretch; }
+    .ask-btn { flex: 1; justify-content: center; }
   }
   @media (max-width: 960px) {
     .grid-3 { grid-template-columns: 1fr 1fr; }
