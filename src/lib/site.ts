@@ -17,8 +17,8 @@ export const docsNav: { label: string; items: { id: string; label?: string }[] }
   {
     label: "Building extensions",
     items: [
-      "getting-started", "concepts", "components", "preferences", "storage",
-      "network", "connections", "native-helpers", "manifest", "publishing",
+      "getting-started", "concepts", "components", "drops", "preferences", "storage",
+      "network", "connections", "capabilities", "native-helpers", "manifest", "publishing", "stability",
     ].map((name) => ({ id: `docs/extensions/${name}` })),
   },
   {

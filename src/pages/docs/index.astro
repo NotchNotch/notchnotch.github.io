@@ -18,13 +18,16 @@ const paths = [
 const reference = [
   ["docs/extensions/concepts", "Activities, prompts, announcements and settings", "sparkle"],
   ["docs/extensions/components", "Everything you can put in the notch", "box"],
+  ["docs/extensions/drops", "Files, links and text dropped on the notch", "tray"],
   ["docs/extensions/preferences", "Settings people fill in, drawn natively", "edit"],
   ["docs/extensions/storage", "Keep values and secrets across restarts", "key"],
   ["docs/extensions/network", "Call web APIs with fetch", "globe"],
   ["docs/extensions/connections", "Talk to local apps and services", "bolt"],
+  ["docs/extensions/capabilities", "Calendars, what's playing, battery and system", "calendar"],
   ["docs/extensions/native-helpers", "Reach apps through native code", "cpu"],
   ["docs/extensions/manifest", "Every field of notchnotch.json", "hash"],
   ["docs/extensions/publishing", "Icon, About page, guidelines and .notchext files", "download"],
+  ["docs/extensions/stability", "What API v1 promises, and deprecations", "shield"],
 ].filter(([id]) => titles.has(id));
 
 const internals = ["docs/internals/architecture", "docs/internals/releasing", "docs/internals/store-catalog", "docs/internals/performance", "changelog", "privacy", "security"]
