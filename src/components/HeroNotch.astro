@@ -1,35 +1,48 @@
 ---
 // The landing page's notch, a port of the app's NotchView: the same
 // silhouette (shoulders that flare out into the screen edge), the same sizes
-// per presentation, and the same content as Music, Focus Timer and Calendar
-// draw. Sizes are in points, as in NotchGeometry, at a camera of 184 × 32.
+// per presentation, and what Music, Focus Timer, Home and a drop draw.
+// Sizes are in points, as in NotchGeometry and HomeLayout, at a camera of 184 × 32.
+
+// The shared SF Symbol stand-ins, drawn on a 16-point grid.
+const sym = {
+  grid: '<rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/>',
+  gear: '<circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/>',
+  timer: '<circle cx="8" cy="9" r="5.4"/><path d="M8 9 6.2 6.9M6.4 1.8h3.2"/>',
+  cloud: '<circle cx="5.6" cy="6" r="2.4"/><path d="M5.6 1.6v.9M1.6 6h.9M2.8 3.2l.6.6M8.4 3.2l-.6.6"/><path d="M6.5 13.6h5.4a2.4 2.4 0 0 0 0-4.8 3.4 3.4 0 0 0-6.4.9 2 2 0 0 0 1 3.9Z" fill="currentColor"/>',
+  calendar: '<rect x="2" y="3" width="12" height="11" rx="2.6"/><path d="M2.4 6.6h11.2M5.2 1.6v2.6M10.8 1.6v2.6"/>',
+  battery: '<rect x="1.5" y="4.5" width="11.5" height="7" rx="2"/><path d="M14.6 7v2"/><rect x="3" y="6" width="7" height="4" rx="0.8" fill="currentColor" stroke="none"/>',
+  tray: '<path d="M2.5 9 4.2 3.6A1.5 1.5 0 0 1 5.6 2.6h4.8a1.5 1.5 0 0 1 1.4 1L13.5 9v3.4a1.5 1.5 0 0 1-1.5 1.5H4a1.5 1.5 0 0 1-1.5-1.5Z"/><path d="M2.5 9h3l1 1.7h3l1-1.7h3M8 4.4v3.4m0 0L6.6 6.4M8 7.8l1.4-1.4"/>',
+  airdrop: '<circle cx="8" cy="8.6" r="1.3" fill="currentColor"/><path d="M5.2 11.4a4 4 0 1 1 5.6 0M3.3 13.3a6.7 6.7 0 1 1 9.4 0"/>',
+  open: '<rect x="2" y="2.5" width="11.5" height="11.5" rx="2.6"/><path d="M6.4 9.6 11 5m0 0H7.6M11 5v3.4"/>',
+  eye: '<path d="M1.6 8S4 3.6 8 3.6 14.4 8 14.4 8 12 12.4 8 12.4 1.6 8 1.6 8Z"/><circle cx="8" cy="8" r="2"/>',
+};
+const tint = "#d47c6c"; // what Music takes from the cover below
 ---
 
-<div class="hn" data-hero-notch data-activity="music" data-state="idle" role="img"
-     aria-label="The notch, showing Music, then Focus Timer, then Calendar">
+<div class="hn" data-hero-notch data-scene="music" data-state="idle" role="img"
+     aria-label="The notch showing Music, then a Focus Timer beside it, then Home with every activity, then a file dropped on it">
   <div class="shell">
-    <!-- Compact: a symbol and a few words either side of the camera -->
+    <!-- Compact: the live activity either side of the camera -->
     <div class="wings" aria-hidden="true">
       <div class="wing left">
         <span class="for music"><span class="art art-s"></span></span>
-        <span class="for timer"><svg class="sym" viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span>
-        <span class="for calendar"><svg class="sym" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.5"/><path d="M5.2 1.6v2.6M10.8 1.6v2.6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+        <span class="for live"><span class="ring-s" style="--p: 0.04"></span></span>
       </div>
       <div class="cam"></div>
       <div class="wing right">
         <span class="for music"><span class="wave"><i></i><i></i><i></i><i></i></span></span>
-        <span class="for timer"><span class="cap" data-clock>24:12</span></span>
-        <span class="for calendar"><span class="cap">12m</span></span>
+        <span class="for live"><span class="cap" data-clock>24:12</span><span class="circle"><span class="art"></span></span></span>
       </div>
     </div>
-    <div class="peek" aria-hidden="true">
-      <span class="for music">Midnight Drive</span>
-      <span class="for calendar">Up next • Design review</span>
-    </div>
+    <div class="peek" aria-hidden="true">Lumen Coast • Midnight Drive</div>
 
-    <!-- Expanded -->
+    <!-- Open -->
     <div class="expanded" aria-hidden="true">
-      <div class="gear"><svg viewBox="0 0 16 16"><path d="M8 5.4a2.6 2.6 0 1 0 0 5.2 2.6 2.6 0 0 0 0-5.2Z" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></svg></div>
+      <div class="controls">
+        <svg class="home-btn" viewBox="0 0 16 16" set:html={sym.grid} />
+        <svg viewBox="0 0 16 16" set:html={sym.gear} />
+      </div>
 
       <!-- Music: the headerless player -->
       <section class="page music">
@@ -38,7 +51,7 @@
           <div class="meta"><b>Midnight Drive</b><span>Lumen Coast</span></div>
           <span class="wave wave-l"><i></i><i></i><i></i><i></i></span>
         </div>
-        <div class="scrub"><span data-pos>1:24</span><i><b data-bar></b></i><span>3:52</span></div>
+        <div class="scrub"><span data-pos>01:24</span><i><b data-bar></b></i><span>03:52</span></div>
         <div class="transport">
           <svg class="t-sm" viewBox="0 0 20 20"><path d="M2.5 6h3.2c2 0 3 .8 4.3 3l1 1.7c1.3 2.3 2.3 3.3 4.3 3.3h2.2M14.8 11.8 17.5 14l-2.7 2.2M2.5 14h3.2c1.3 0 2.1-.4 2.9-1.3M17.5 6h-2.2c-1.3 0-2.1.4-2.9 1.3M14.8 3.8 17.5 6l-2.7 2.2" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
           <svg class="t-md" viewBox="0 0 24 24"><path d="M11.6 6.4v11.2L3.4 12l8.2-5.6Zm9.4 0v11.2L12.8 12 21 6.4Z" fill="currentColor"/></svg>
@@ -50,52 +63,68 @@
 
       <!-- Focus Timer -->
       <section class="page timer">
-        <div class="top"><span class="dots"><i></i><i></i><i></i></span></div>
-        <div class="row">
-          <svg class="cap-sym" viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-          <span class="caption">FOCUS</span>
-          <span class="badge success">Running</span>
+        <div class="t-row">
+          <span class="ring-l" data-ring style="--p: 0.04"><svg viewBox="0 0 16 16" set:html={sym.timer} /></span>
+          <div class="t-col">
+            <span class="caption">FOCUS</span>
+            <span class="value"><b data-clock>24:12</b><small>left</small></span>
+          </div>
         </div>
-        <span class="timer-digits" data-clock>24:12</span>
-        <span class="progress"><b data-timer-bar></b></span>
-        <hr />
         <div class="actions">
           <span class="btn danger" aria-label="Stop"><i></i></span>
           <span class="btn accent"><svg viewBox="0 0 16 16"><rect x="3.6" y="2.6" width="3" height="10.8" rx="1" fill="currentColor"/><rect x="9.4" y="2.6" width="3" height="10.8" rx="1" fill="currentColor"/></svg>Pause</span>
         </div>
       </section>
 
-      <!-- Calendar -->
-      <section class="page calendar">
-        <div class="top"><span class="dots"><i></i><i></i><i></i></span></div>
-        <div class="row">
-          <svg class="cap-sym" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.6"/></svg>
-          <span class="caption">UP NEXT</span>
-          <span class="badge warning">In 12m</span>
-        </div>
-        <span class="ev-title">Design review</span>
-        <span class="ev-sub">Today · 10:30 – 11:00 · Work</span>
-        <div class="actions start">
-          <span class="btn accent"><svg viewBox="0 0 16 16"><rect x="1.5" y="4" width="9" height="8" rx="2" fill="currentColor"/><path d="m11.5 7 3-2v6l-3-2Z" fill="currentColor"/></svg>Join</span>
-          <span class="btn fill"><svg viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11" rx="2.6" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M2.4 6.6h11.2" stroke="currentColor" stroke-width="1.5"/></svg>Open in Calendar</span>
+      <!-- Home: every activity, never scrolling -->
+      <section class="page home">
+        <div class="tiles">
+          <div class="tile wide">
+            <span class="art art-m"></span>
+            <span class="tcol"><b>Midnight Drive</b><small>Lumen Coast</small></span>
+          </div>
+          <div class="tile wide">
+            <span class="ring-m" style="--p: 0.04"><svg viewBox="0 0 16 16" set:html={sym.timer} /></span>
+            <span class="tcol"><small>FOCUS</small><b class="orange"><span data-clock>24:12</span> <em>left</em></b></span>
+          </div>
+          <div class="tile"><span class="trow"><svg class="cyan" viewBox="0 0 16 16" set:html={sym.cloud} /><b>14°</b></span><small>Weather</small></div>
+          <div class="tile"><span class="trow"><svg class="red" viewBox="0 0 16 16" set:html={sym.calendar} /><b>12m</b></span><small>Design review</small></div>
+          <div class="tile"><span class="trow"><span class="ring-xs" style="--p: 0.23"></span><b>23%</b></span><small>CPU</small></div>
+          <div class="tile"><span class="trow"><svg class="green" viewBox="0 0 16 16" set:html={sym.battery} /><b>82%</b></span><small>Battery</small></div>
         </div>
       </section>
 
-      <div class="pager"><i class="for-music"></i><i class="for-timer"></i><i class="for-calendar"></i></div>
+      <!-- A file dragged over the notch: the zones that take it -->
+      <section class="page drop">
+        <div class="zones">
+          <div class="zone shelf"><svg viewBox="0 0 16 16" set:html={sym.tray} /><span><b>Shelf</b><b>Shelf · 1 file</b></span></div>
+          <div class="zone"><svg viewBox="0 0 16 16" set:html={sym.airdrop} /><span><b>AirDrop</b></span></div>
+          <div class="zone"><svg viewBox="0 0 16 16" set:html={sym.open} /><span><b>Open With</b></span></div>
+          <div class="zone"><svg viewBox="0 0 16 16" set:html={sym.eye} /><span><b>Quick Look</b></span></div>
+        </div>
+      </section>
     </div>
   </div>
+
+  <!-- The file being dragged -->
+  <div class="file" aria-hidden="true"><span class="doc"><i>PDF</i></span><span class="name">Brief.pdf</span></div>
 </div>
 
 <script>
+  type Step = [Record<string, string>, number];
   // How long each presentation stays, in the order the app moves through them.
-  const steps: Record<string, [string, number][]> = {
-    music: [["compact", 900], ["peek", 1700], ["expanded", 4200], ["compact", 700]],
-    timer: [["compact", 1300], ["expanded", 4200], ["compact", 700]],
-    calendar: [["compact", 900], ["peek", 1700], ["expanded", 4200], ["compact", 700]],
+  const scenes: Record<string, Step[]> = {
+    music: [[{ state: "compact" }, 900], [{ state: "peek" }, 1800], [{ state: "expanded" }, 4400], [{ state: "compact" }, 600]],
+    timer: [[{ state: "compact", extra: "in" }, 1700], [{ state: "expanded" }, 4200], [{ state: "compact" }, 600]],
+    home: [[{ state: "compact" }, 500], [{ state: "expanded" }, 4800], [{ state: "compact" }, 600]],
+    drop: [
+      [{ state: "compact", drag: "start" }, 250], [{ drag: "rise" }, 900], [{ state: "expanded" }, 650],
+      [{ drag: "over" }, 1900], [{ drag: "done" }, 500], [{ state: "compact" }, 1100], [{ drag: "" }, 100],
+    ],
   };
-  const order = Object.keys(steps);
-  const total = (activity: string) => steps[activity].reduce((sum, [, ms]) => sum + ms, 0);
-  const clock = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+  const order = Object.keys(scenes);
+  const total = (scene: string) => scenes[scene].reduce((sum, [, ms]) => sum + ms, 0);
+  const clock = (s: number, pad = false) => `${String(Math.floor(s / 60)).padStart(pad ? 2 : 1, "0")}:${String(s % 60).padStart(2, "0")}`;
 
   document.addEventListener("astro:page-load", () => {
     const notch = document.querySelector<HTMLElement>("[data-hero-notch]");
@@ -106,9 +135,18 @@
     let seconds = 24 * 60 + 12, position = 84;
 
     const clear = () => { timers.forEach(clearTimeout); timers = []; };
+    const apply = (step: Record<string, string>) => {
+      for (const [key, value] of Object.entries(step)) {
+        if (key === "state" && hovering) continue;
+        if (value) notch!.dataset[key] = value; else delete notch!.dataset[key];
+      }
+    };
     function select(i: number) {
       index = i;
-      notch!.dataset.activity = order[i];
+      notch!.dataset.scene = order[i];
+      delete notch!.dataset.drag;
+      // Music plays throughout, so it joins the wings once the timer starts.
+      if (order[i] === "music") delete notch!.dataset.extra; else notch!.dataset.extra ??= "in";
       tabs.forEach((tab) => {
         const on = tab.dataset.notchTab === order[i];
         tab.setAttribute("aria-selected", String(on));
@@ -122,21 +160,24 @@
       select(i);
       if (reduced) { notch!.dataset.state = "expanded"; return; }
       let at = 0;
-      for (const [state, ms] of steps[order[i]]) {
-        timers.push(window.setTimeout(() => { if (!hovering) notch!.dataset.state = state; }, at));
+      for (const [step, ms] of scenes[order[i]]) {
+        timers.push(window.setTimeout(() => apply(step), at));
         at += ms;
       }
       timers.push(window.setTimeout(() => { if (visible && !hovering) play((i + 1) % order.length); }, at));
     }
 
     tabs.forEach((tab) => tab.addEventListener("click", () => {
-      clear(); select(order.indexOf(tab.dataset.notchTab!));
+      const i = order.indexOf(tab.dataset.notchTab!);
+      if (order[i] === "drop") { play(i); return; }
+      clear(); select(i);
       notch.dataset.state = "expanded";
       timers.push(window.setTimeout(() => !hovering && play((index + 1) % order.length), 5200));
     }));
     notch.addEventListener("pointerenter", () => {
       hovering = true; clear();
       tabs.forEach((tab) => tab.classList.remove("running"));
+      delete notch.dataset.drag;
       notch.dataset.state = "expanded";
     });
     notch.addEventListener("pointerleave", () => {
@@ -149,10 +190,13 @@
       if (!visible) return;
       seconds = seconds > 0 ? seconds - 1 : 25 * 60;
       position = (position + 1) % 232;
+      const progress = 1 - seconds / 1500;
       notch.querySelectorAll("[data-clock]").forEach((el) => { el.textContent = clock(seconds); });
-      notch.querySelector("[data-pos]")!.textContent = clock(position);
+      notch.querySelector("[data-pos]")!.textContent = clock(position, true);
       notch.querySelector<HTMLElement>("[data-bar]")!.style.width = `${(position / 232) * 100}%`;
-      notch.querySelector<HTMLElement>("[data-timer-bar]")!.style.width = `${(1 - seconds / 1500) * 100}%`;
+      notch.querySelectorAll<HTMLElement>("[style*='--p']").forEach((el) => {
+        if (!el.closest(".tile:not(.wide)")) el.style.setProperty("--p", progress.toFixed(4));
+      });
     }, 1000);
 
     const observer = new IntersectionObserver(([entry]) => {
@@ -167,10 +211,12 @@
   });
 </script>
 
-<style>
-  /* Presentation sizes from NotchGeometry, camera 184 × 32 */
+<style define:vars={{ tint }}>
+  /* Presentation sizes from NotchGeometry and HomeLayout, camera 184 × 32 */
   .hn {
     --w: 184px; --h: 32px; --shoulder: 0px; --r: 12px; --shadow: 0;
+    --orange: rgb(255 158 77); --orange-from: rgb(255 102 92); --cyan: rgb(97 204 250);
+    --green: rgb(115 219 140); --red: rgb(255 115 110); --ink-2: rgb(255 255 255 / 0.58);
     position: absolute; top: 0; left: 50%; z-index: 40;
     width: var(--w); height: var(--h);
     transform: translateX(-50%);
@@ -181,16 +227,17 @@
     color: #fff;
     -webkit-font-smoothing: antialiased;
   }
-  .hn[data-state="idle"] { --w: 184px; --h: 32px; --shoulder: 0px; --r: 12px; }
-  .hn[data-state="compact"] { --w: 244px; --h: 32px; --shoulder: 5px; --r: 12px; }
+  .hn[data-state="compact"] { --w: 328px; --shoulder: 5px; }
+  .hn[data-state="compact"][data-scene="music"] { --w: 252px; }
   .hn[data-state="peek"] { --w: 320px; --h: 78px; --shoulder: 18px; --r: 22px; --shadow: 0.55; }
   .hn[data-state="expanded"] {
     --w: 384px; --shoulder: 28px; --r: 34px; --shadow: 1;
     transition: width 0.44s var(--spring-open), height 0.44s var(--spring-open), --shoulder 0.44s var(--spring-open);
   }
-  .hn[data-state="expanded"][data-activity="music"] { --h: 206px; }
-  .hn[data-state="expanded"][data-activity="timer"] { --h: 228px; }
-  .hn[data-state="expanded"][data-activity="calendar"] { --h: 196px; }
+  .hn[data-state="expanded"][data-scene="music"] { --h: 188px; }
+  .hn[data-state="expanded"][data-scene="timer"] { --h: 150px; }
+  .hn[data-state="expanded"][data-scene="home"] { --w: 456px; --h: 206px; }
+  .hn[data-state="expanded"][data-scene="drop"] { --w: 456px; --h: 134px; }
 
   /* The shoulders: concave corners that join the screen edge */
   .hn::before, .hn::after {
@@ -205,34 +252,64 @@
     transition: border-radius 0.4s var(--spring-open);
   }
 
-  /* Which activity's content is showing */
+  /* Which scene's content is showing */
   .for { display: none; }
-  [data-activity="music"] .for.music, [data-activity="timer"] .for.timer, [data-activity="calendar"] .for.calendar { display: contents; }
+  [data-scene="music"] .for.music, .hn:not([data-scene="music"]) .for.live { display: contents; }
   .page { display: none; }
-  [data-activity="music"] .page.music, [data-activity="timer"] .page.timer, [data-activity="calendar"] .page.calendar { display: flex; }
+  [data-scene="music"] .page.music, [data-scene="timer"] .page.timer,
+  [data-scene="home"] .page.home, [data-scene="drop"] .page.drop { display: flex; }
 
-  /* Compact wings */
+  /* Compact wings: leading hugs the outer left edge, trailing the outer right */
   .wings {
     position: absolute; inset: 0 0 auto; height: 32px; display: flex; align-items: center;
     transition: opacity 0.13s ease-out, filter 0.13s ease-out;
   }
-  .wing { flex: 1; display: flex; justify-content: center; align-items: center; min-width: 0; color: rgb(255 255 255 / 0.92); }
+  .wing { flex: 1; display: flex; align-items: center; gap: 3px; min-width: 0; color: rgb(255 255 255 / 0.92); }
+  .wing.left { justify-content: flex-start; padding: 0 6px 0 10px; }
+  .wing.right { justify-content: flex-end; padding: 0 10px 0 6px; }
   .cam { width: 184px; flex: none; }
   .hn[data-state="idle"] .wings { opacity: 0; }
   .hn[data-state="expanded"] .wings { opacity: 0; filter: blur(3px); }
-  .sym { width: 13px; height: 13px; }
-  .cap { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .cap { font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--orange); }
+
+  /* Another live activity, as a circle after the reading */
+  .circle {
+    width: 18px; height: 18px; margin-left: 5px; border-radius: 50%; background: rgb(255 255 255 / 0.08);
+    display: grid; place-items: center; overflow: hidden; flex: none;
+    transform: scale(0.2); opacity: 0; transition: transform 0.4s var(--spring-open), opacity 0.2s;
+  }
+  .circle .art { width: 11px; height: 11px; border-radius: 2.4px; }
+  .hn[data-extra="in"] .circle { transform: none; opacity: 1; transition-delay: 0.5s; }
+
+  /* Artwork: a sunset cover */
   .art { display: block; flex: none; background:
-    radial-gradient(circle at 50% 58%, #ffcf6e 0 19%, transparent 20%),
-    linear-gradient(180deg, #ff8a3d 0%, #e0453a 46%, #2a1a3a 47%, #14243d 100%); }
-  .art-s { width: 15px; height: 15px; border-radius: 3.3px; }
+    radial-gradient(circle at 50% 62%, #ffd27a 0 17%, transparent 18%),
+    linear-gradient(180deg, #6b2966 0%, #ed5c61 36%, #ff9e52 57%, #9e404c 58%, #4d1f3d 100%); }
+  .art-s { width: 18px; height: 18px; border-radius: 4px; }
+  .art-m { width: 40px; height: 40px; border-radius: 8.8px; }
   .art-l { width: 60px; height: 60px; border-radius: 13.2px; box-shadow: inset 0 0 0 0.5px rgb(255 255 255 / 0.08); }
   .wave { display: flex; align-items: center; gap: 2px; width: 16px; height: 16px; justify-content: center; }
-  .wave i { width: 2px; height: 9px; border-radius: 2px; background: #ffa65c; animation: wave 0.9s ease-in-out infinite alternate; }
+  .wave i { width: 2px; height: 9px; border-radius: 2px; background: var(--tint); animation: wave 0.9s ease-in-out infinite alternate; }
   .wave i:nth-child(2) { animation-duration: 0.72s; animation-delay: -0.3s; }
   .wave i:nth-child(3) { animation-duration: 0.83s; animation-delay: -0.5s; }
   .wave i:nth-child(4) { animation-duration: 0.66s; animation-delay: -0.15s; }
   @keyframes wave { from { height: 4px; } to { height: 13px; } }
+
+  /* Rings: progress from the accent's neighboring hue to the accent */
+  .ring-s, .ring-m, .ring-l, .ring-xs {
+    --p: 0; --track: rgb(255 255 255 / 0.14);
+    position: relative; flex: none; border-radius: 50%; display: grid; place-items: center; color: var(--orange);
+    background:
+      radial-gradient(closest-side, #000 calc(100% - var(--stroke)), transparent calc(100% - var(--stroke) + 0.5px)),
+      conic-gradient(var(--orange-from), var(--orange) calc(var(--p) * 100%), var(--track) 0);
+  }
+  .ring-s { width: 15px; height: 15px; --stroke: 2.4px; }
+  .ring-xs { width: 16px; height: 16px; --stroke: 2.4px; --orange-from: rgb(97 160 250); --orange: var(--cyan); }
+  .ring-m { width: 40px; height: 40px; --stroke: 5px; }
+  .ring-l { width: 50px; height: 50px; --stroke: 6.5px; }
+  .ring-m svg { width: 14px; height: 14px; }
+  .ring-l svg { width: 17px; height: 17px; }
+  svg { fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; }
 
   /* Peek: one line under the camera */
   .peek {
@@ -244,20 +321,19 @@
   }
   .hn[data-state="peek"] .peek { opacity: 1; filter: none; transform: none; transition-delay: 0.06s; }
 
-  /* Expanded pages */
+  /* Open */
   .expanded {
-    position: absolute; top: 0; left: 0; width: 384px;
+    position: absolute; top: 0; left: 0; width: var(--w);
     opacity: 0; filter: blur(5px); transform: translateY(-6px) scale(0.96); transform-origin: top center;
     transition: opacity 0.18s ease-out, filter 0.18s ease-out, transform 0.18s ease-out;
     pointer-events: none;
   }
   .hn[data-state="expanded"] .expanded { opacity: 1; filter: none; transform: none; transition-delay: 0.07s; }
-  .gear { position: absolute; top: 0; right: 24px; height: 40px; display: grid; place-items: center; color: rgb(255 255 255 / 0.5); }
-  .gear svg { width: 13px; height: 13px; }
+  /* Home and Settings, top right over every page */
+  .controls { position: absolute; top: 0; right: 24px; height: 40px; display: flex; align-items: center; gap: 2px; color: rgb(255 255 255 / 0.5); z-index: 1; }
+  .controls svg { width: 24px; height: 24px; padding: 6px; stroke-width: 1.3; }
+  [data-scene="home"] .home-btn { display: none; }
   .page { flex-direction: column; }
-  .top { height: 40px; padding: 0 24px; display: flex; align-items: center; }
-  .dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
-  .dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
 
   .page.music { padding: 14px 27px 0; }
   .player-top { display: flex; align-items: flex-start; gap: 9px; }
@@ -267,41 +343,92 @@
   .wave-l { height: 60px; margin-right: 25px; }
   .scrub { display: flex; align-items: center; gap: 10px; margin-top: 22px; height: 16px; font-size: 10px; font-weight: 500; color: rgb(255 255 255 / 0.45); font-variant-numeric: tabular-nums; }
   .scrub span { width: 30px; } .scrub span:last-child { text-align: right; }
-  .scrub i { flex: 1; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.18); overflow: hidden; }
-  .scrub b { display: block; height: 100%; width: 36%; border-radius: inherit; background: #ffa65c; transition: width 1s linear; }
+  .scrub i { flex: 1; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.14); overflow: hidden; }
+  .scrub b { display: block; height: 100%; width: 36%; border-radius: inherit; background: var(--tint); transition: width 1s linear; }
   .transport { display: flex; justify-content: center; align-items: center; gap: 14px; margin-top: 15px; height: 40px; }
-  .transport svg { width: 40px; height: 40px; padding: 11px; }
+  .transport svg { width: 40px; height: 40px; padding: 11px; stroke: none; }
   .t-sm { color: rgb(255 255 255 / 0.45); padding: 11.5px !important; }
   .t-md { padding: 7.5px !important; }
   .t-lg { width: 44px !important; padding: 7px !important; }
 
-  .page.timer, .page.calendar { padding-bottom: 0; }
-  .row { display: flex; align-items: center; gap: 4px; padding: 0 28px; height: 20px; }
-  .cap-sym { width: 11px; height: 11px; color: rgb(255 255 255 / 0.55); }
-  .caption { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: rgb(255 255 255 / 0.55); }
-  .badge { margin-left: auto; height: 20px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 600; }
-  .badge.success { color: #5fd47e; background: rgb(52 199 89 / 0.16); }
-  .badge.warning { color: #ffc35a; background: rgb(255 179 64 / 0.15); }
-  .timer-digits { padding: 0 28px; margin-top: 10px; font-family: var(--font-rounded); font-size: 34px; font-weight: 300; letter-spacing: -0.8px; line-height: 1.1; font-variant-numeric: tabular-nums; }
-  .progress { margin: 12px 28px 0; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.14); overflow: hidden; }
-  .progress b { display: block; height: 100%; width: 3%; background: #fff; border-radius: inherit; transition: width 1s linear; }
-  hr { margin: 14px 28px 0; border: 0; border-top: 0.5px solid rgb(255 255 255 / 0.12); }
-  .actions { display: flex; justify-content: flex-end; gap: 8px; padding: 0 28px; margin-top: 14px; }
-  .actions.start { justify-content: flex-start; margin-top: 12px; }
-  .btn { height: 28px; padding: 0 12px; border-radius: 999px; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 500; white-space: nowrap; }
-  .btn svg { width: 12px; height: 12px; }
-  .btn.accent { background: #fff; color: #000; }
-  .btn.fill { background: rgb(255 255 255 / 0.12); }
-  .btn.danger { width: 28px; padding: 0; justify-content: center; background: rgb(255 80 70 / 0.18); }
-  .btn.danger i { width: 9px; height: 9px; border-radius: 2px; background: #ff6b5e; }
-  .ev-title { padding: 0 28px; margin-top: 8px; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; }
-  .ev-sub { padding: 0 28px; font-size: 13px; color: rgb(255 255 255 / 0.55); }
+  /* Focus Timer, as the extension's Row, Ring, Value and Actions draw */
+  .page.timer { padding: 42px 28px 0; }
+  .t-row { display: flex; align-items: center; gap: 14px; }
+  .t-col { display: flex; flex-direction: column; }
+  .caption { font-size: 11.5px; font-weight: 600; letter-spacing: 0.5px; color: var(--ink-2); line-height: 1; margin-top: 2px; }
+  .value { display: flex; align-items: baseline; gap: 4px; line-height: 1; margin-top: 6px; }
+  .value b { font-size: 36px; font-weight: 400; letter-spacing: -0.6px; color: var(--orange); font-variant-numeric: tabular-nums; }
+  .value small { font-size: 15px; font-weight: 600; color: var(--ink-2); }
+  .actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+  .btn { height: 28px; padding: 0 13px; border-radius: 999px; display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; white-space: nowrap; }
+  .btn svg { width: 11px; height: 11px; stroke: none; }
+  .btn.accent { background: var(--orange); color: #000; }
+  .btn.danger { width: 28px; padding: 0; justify-content: center; background: rgb(255 115 110 / 0.16); }
+  .btn.danger i { width: 9px; height: 9px; border-radius: 2px; background: var(--red); }
 
-  .pager { height: 24px; display: flex; justify-content: center; margin-top: 2px; }
-  .page.music ~ .pager { margin-top: 0; }
-  .pager i { width: 28px; height: 24px; display: grid; place-items: center; }
-  .pager i::before { content: ""; width: 4px; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.28); transition: width 0.28s var(--spring-open), background-color 0.2s; }
-  [data-activity="music"] .for-music::before, [data-activity="timer"] .for-timer::before, [data-activity="calendar"] .for-calendar::before { width: 16px; background: rgb(255 255 255 / 0.9); }
+  /* Home: 100 × 64 cells, 8 apart, 16 from the edge */
+  .page.home, .page.drop { padding: 40px 16px 0; }
+  .tiles { display: grid; grid-template-columns: repeat(4, 100px); grid-auto-rows: 64px; gap: 8px; }
+  .tile {
+    border-radius: 14px; background: rgb(255 255 255 / 0.07); padding: 9px 10px;
+    display: flex; flex-direction: column; justify-content: space-between; min-width: 0;
+    opacity: 0; transform: scale(0.9); transition: transform 0.4s var(--spring-open), opacity 0.25s;
+  }
+  .hn[data-scene="home"][data-state="expanded"] .tile { opacity: 1; transform: none; }
+  .tile:nth-child(2) { transition-delay: 0.03s; } .tile:nth-child(3) { transition-delay: 0.06s; }
+  .tile:nth-child(4) { transition-delay: 0.08s; } .tile:nth-child(5) { transition-delay: 0.1s; } .tile:nth-child(6) { transition-delay: 0.12s; }
+  .tile.wide { grid-column: span 2; flex-direction: row; align-items: center; justify-content: flex-start; gap: 10px; }
+  .tile small { font-size: 11px; font-weight: 500; color: rgb(255 255 255 / 0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .trow { display: flex; align-items: center; justify-content: space-between; }
+  .trow svg { width: 15px; height: 15px; }
+  .trow b { font-size: 13px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .tcol { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .tcol b { font-size: 13px; font-weight: 600; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .tcol b em { font-style: normal; font-size: 11px; color: var(--ink-2); }
+  .tcol small { font-size: 11px; }
+  .orange { color: var(--orange); } .cyan { color: var(--cyan); } .green { color: var(--green); } .red { color: var(--red); }
+
+  /* Drop zones: Home's tile size, dashed until the file is over one */
+  .zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .zone {
+    height: 64px; border-radius: 14px; background: rgb(255 255 255 / 0.08); box-shadow: inset 0 0 0 1.5px transparent;
+    outline: 1.5px dashed rgb(255 255 255 / 0.14); outline-offset: -1.5px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+    color: rgb(255 255 255 / 0.78); font-size: 12px; font-weight: 500;
+    transition: transform 0.32s var(--spring-open), opacity 0.2s, background-color 0.2s, color 0.2s, outline-color 0.2s;
+  }
+  .zone svg { width: 20px; height: 20px; stroke-width: 1.3; }
+  .zone span { display: grid; height: 15px; overflow: hidden; }
+  .zone span b { font-weight: 500; grid-area: 1 / 1; transition: opacity 0.2s; }
+  .zone span b + b { opacity: 0; }
+  .hn[data-drag="over"] .zone:not(.shelf), .hn[data-drag="done"] .zone:not(.shelf) { opacity: 0.55; }
+  .hn[data-drag="over"] .zone.shelf, .hn[data-drag="done"] .zone.shelf {
+    transform: scale(1.06); color: var(--orange); background: rgb(255 158 77 / 0.2);
+    outline: 1.5px solid rgb(255 158 77 / 0.9);
+  }
+  .hn[data-drag="over"] .zone.shelf span b:first-child, .hn[data-drag="done"] .zone.shelf span b:first-child { opacity: 0; }
+  .hn[data-drag="over"] .zone.shelf span b + b, .hn[data-drag="done"] .zone.shelf span b + b { opacity: 1; }
+
+  /* The dragged file: rises from the page, then lands on Shelf */
+  .file {
+    --x: 150px; --y: 250px; --s: 1;
+    position: absolute; left: 50%; top: 0; z-index: 2; pointer-events: none;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transform: translate(calc(-50% + var(--x)), var(--y)) scale(var(--s)) rotate(var(--rot, 6deg));
+    opacity: 0; visibility: hidden;
+    transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.3s, visibility 0s 0.3s;
+  }
+  .doc {
+    position: relative; width: 34px; height: 42px; border-radius: 4px 11px 4px 4px; background: #f4f4f6;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.45); display: grid; place-items: end center; padding-bottom: 6px;
+  }
+  .doc::before { content: ""; position: absolute; top: 0; right: 0; width: 11px; height: 11px; border-radius: 0 0 0 3px; background: #c9c9cf; }
+  .doc i { font-style: normal; font-size: 7.5px; font-weight: 800; color: #fff; background: #e5483e; padding: 1px 3px; border-radius: 2px; }
+  .name { font-size: 10px; font-weight: 600; padding: 1px 5px; border-radius: 4px; background: rgb(47 120 255 / 0.9); }
+  .hn[data-drag] .file { visibility: visible; transition: transform 0.9s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.3s; }
+  .hn[data-drag="rise"] .file { --x: 40px; --y: 70px; --rot: -3deg; opacity: 1; }
+  .hn[data-drag="over"] .file { --x: -122px; --y: 88px; --rot: -2deg; --s: 0.86; opacity: 0.9; transition-duration: 1s; }
+  .hn[data-drag="done"] .file { --x: -162px; --y: 60px; --rot: 0deg; --s: 0.3; opacity: 0; transition-duration: 0.35s; }
 
   @media (prefers-reduced-motion: reduce) { .wave i { animation: none; } }
 </style>

@@ -10,18 +10,36 @@ import Icon from "../components/Icon.astro";
 import { release, catalog } from "../lib/site";
 
 const pick = (handle: string) => catalog.extensions.find((entry) => entry.handle === handle);
-const featured = ["focus-timer", "calendar", "weather", "github-notifications", "world-clock", "hacker-news"]
+const featured = ["system-monitor", "weather", "world-clock", "hacker-news", "crypto-prices", "countdown"]
   .map((name) => pick(`sadeqi-ah/${name}`)).filter((entry) => entry !== undefined);
 const reviewed = pick("sadeqi-ah/github-notifications");
 const breakReminder = pick("sadeqi-ah/break-reminder");
 
 const moments = [
-  { variant: "compact", title: "Compact", text: "A symbol and a few words either side of the camera." },
+  { variant: "compact", title: "Live", text: "A reading either side of the camera. Other live activities join as circles." },
   { variant: "peek", title: "Announcements", text: "One line under the camera when something changes." },
   { variant: "expanded", title: "Open", text: "Hover or click for the whole activity. It never scrolls." },
   { variant: "prompt", title: "Questions", text: "Opens on its own and waits. Closing never answers for you." },
-  { variant: "switcher", title: "Many at once", text: "One activity at a time, the rest a swipe away." },
-  { variant: "idle", title: "Out of the way", text: "Nothing going on? It's just the notch again." },
+  { variant: "home", title: "Home", text: "Every activity in one grid. It grows wider, never scrolls." },
+  { variant: "drop", title: "Drops", text: "Drag a file onto the notch. The extensions that take it appear." },
+] as const;
+
+const builtIn = [
+  { icon: "music", title: "Music", text: "Spotify, Apple Music or anything in Now Playing, with controls.", href: "/docs/guide/using-notchnotch/#music" },
+  { icon: "calendar", title: "Calendar", text: "Your next meeting, with a button to join it.", href: "/docs/guide/using-notchnotch/#calendar" },
+  { icon: "tray", title: "Shelf", text: "Drop files on the notch and pick them up later.", href: "/docs/guide/using-notchnotch/#shelf" },
+  { icon: "menu", title: "Menu bar icons", text: "The menu bar icons the camera hides, in the open notch.", href: "/docs/guide/using-notchnotch/#menu-bar" },
+] as const;
+
+const can = [
+  { icon: "sparkle", title: "Live activities", text: "A reading beside the camera, a tile in Home, a full view when open.", href: "/docs/extensions/concepts/" },
+  { icon: "bolt", title: "Questions", text: "Open the notch on their own and wait for an answer.", href: "/docs/extensions/concepts/" },
+  { icon: "tray", title: "Drops", text: "Take the files, links and text dragged onto the notch.", href: "/docs/extensions/drops/" },
+  { icon: "globe", title: "The web", text: "Call the APIs your manifest lists.", href: "/docs/extensions/network/" },
+  { icon: "key", title: "Secrets", text: "Keep tokens and passwords in the Keychain.", href: "/docs/extensions/storage/" },
+  { icon: "cpu", title: "Your Mac", text: "Calendars, what's playing, the battery and system load.", href: "/docs/extensions/capabilities/" },
+  { icon: "terminal", title: "Apps and tools", text: "Talk to an app on the Mac, or ship a native helper.", href: "/docs/extensions/connections/" },
+  { icon: "edit", title: "Settings", text: "Native fields from the manifest, or a page of your own.", href: "/docs/extensions/preferences/" },
 ] as const;
 
 const counter = `import { useState } from "react";
@@ -58,7 +76,8 @@ start(<Counter />);`;
       <div class="tabs rise" role="tablist" aria-label="Show in the notch" data-blob="button">
         <button type="button" role="tab" data-notch-tab="music" aria-selected="true"><Icon name="music" size={14} /> Music<span class="run"></span></button>
         <button type="button" role="tab" data-notch-tab="timer" aria-selected="false"><Icon name="timer" size={14} /> Focus Timer<span class="run"></span></button>
-        <button type="button" role="tab" data-notch-tab="calendar" aria-selected="false"><Icon name="calendar" size={14} /> Calendar<span class="run"></span></button>
+        <button type="button" role="tab" data-notch-tab="home" aria-selected="false"><Icon name="grid" size={14} /> Home<span class="run"></span></button>
+        <button type="button" role="tab" data-notch-tab="drop" aria-selected="false"><Icon name="tray" size={14} /> Drops<span class="run"></span></button>
       </div>
 
       <h1 class="display hero-title rise" data-delay="1">The notch,<br />put to work.</h1>
@@ -84,6 +103,16 @@ start(<Counter />);`;
           <div class="stage moment-stage"><MiniNotch variant={moment.variant} /></div>
           <div class="stage-label"><span><b>{moment.title}</b><span>{moment.text}</span></span></div>
         </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Built in -->
+  <section class="container builtin reveal">
+    <p class="can-title">Comes with</p>
+    <div class="can-grid four">
+      {builtIn.map((item) => (
+        <a href={item.href}><span class="tile"><Icon name={item.icon} size={16} /></span><span><b>{item.title}</b><span>{item.text}</span></span></a>
       ))}
     </div>
   </section>
@@ -135,6 +164,14 @@ start(<Counter />);`;
     <div class="dev-cta reveal">
       <CopyCommand command="npm create notchnotch-extension@latest" />
       <a class="link" href="/docs/extensions/getting-started/">Getting started <span class="arrow">→</span></a>
+    </div>
+    <div class="can reveal">
+      <p class="can-title">What an extension can do</p>
+      <div class="can-grid">
+        {can.map((item) => (
+          <a href={item.href}><span class="tile"><Icon name={item.icon} size={16} /></span><span><b>{item.title}</b><span>{item.text}</span></span></a>
+        ))}
+      </div>
     </div>
   </section>
 
@@ -220,8 +257,10 @@ start(<Counter />);`;
 
   .moment-stage { height: 176px; }
   .moment-stage :global(.mini) { --mz: 0.7; }
+  .moment-stage :global(.mini[data-v="home"]), .moment-stage :global(.mini[data-v="drop"]) { --mz: 0.6; }
 
-  .numbers { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 120px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+  .builtin { margin-top: 110px; }
+  .numbers { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 80px; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
   .numbers div { padding: 28px 24px; display: flex; flex-direction: column; gap: 4px; }
   .numbers div + div { border-left: 1px solid var(--line); }
   .numbers b { font-family: var(--font-display); font-size: 32px; font-weight: 500; letter-spacing: -0.03em; }
@@ -233,6 +272,15 @@ start(<Counter />);`;
   .code-card .code { flex: 1; }
   .code :global(pre.astro-code) { background: transparent !important; box-shadow: none; padding: 20px 22px; font-size: 12.5px; }
   .counter-stage { flex: 1; min-height: 300px; }
+  .can { margin-top: 64px; }
+  .can-title { font-size: 13px; font-weight: 500; color: var(--text-3); margin: 0 0 14px; }
+  .can-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; border-radius: 18px; overflow: hidden; background: var(--line); box-shadow: var(--material); }
+  .can-grid a { display: flex; gap: 12px; padding: 20px 18px; background: var(--card); transition: background-color var(--fast); }
+  .can-grid a:hover { background: var(--raised); }
+  .can-grid a > span:last-child { display: flex; flex-direction: column; gap: 3px; }
+  .can-grid b { font-size: 14px; font-weight: 500; }
+  .can-grid a > span:last-child > span { font-size: 13px; line-height: 1.45; color: var(--text-3); }
+  .can-grid .tile { flex: none; width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center; background: var(--chip); color: var(--text-2); }
   .dev-cta { display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 28px; }
 
   .trust { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 6px; border-radius: 22px; background: var(--card); box-shadow: var(--material); }
@@ -280,13 +328,15 @@ start(<Counter />);`;
   @media (max-width: 960px) {
     .grid-3 { grid-template-columns: 1fr 1fr; }
     .dev, .trust { grid-template-columns: 1fr; }
+    .can-grid { grid-template-columns: 1fr 1fr; }
     .numbers { grid-template-columns: 1fr 1fr; }
     .numbers div:nth-child(3) { border-left: 0; }
     .numbers div:nth-child(n+3) { border-top: 1px solid var(--line); }
   }
-  @media (max-width: 480px) { .notch-anchor :global(.hn) { --zoom: 0.84; } }
+  @media (max-width: 480px) { .notch-anchor :global(.hn) { --zoom: 0.72; } }
   @media (max-width: 640px) {
     .grid-3 { grid-template-columns: 1fr; }
+    .can-grid { grid-template-columns: 1fr; }
     .tabs button { padding: 0 10px; font-size: 12.5px; }
     .tabs button :global(svg) { display: none; }
     .section { padding-top: 110px; }

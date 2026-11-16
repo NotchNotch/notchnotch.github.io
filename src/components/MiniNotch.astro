@@ -1,18 +1,18 @@
 ---
 // A still notch in one presentation, for the cards that explain them.
 // Same silhouette and sizes as the hero, at a smaller scale.
-interface Props { variant: "idle" | "compact" | "peek" | "expanded" | "prompt" | "switcher" }
+interface Props { variant: "idle" | "compact" | "peek" | "expanded" | "prompt" | "home" | "drop" }
 const { variant } = Astro.props;
 const size = {
-  idle: [184, 32, 0, 12], compact: [244, 32, 5, 12], peek: [320, 78, 18, 22],
-  expanded: [384, 128, 28, 34], prompt: [384, 132, 28, 34], switcher: [384, 112, 28, 34],
+  idle: [184, 32, 0, 12], compact: [328, 32, 5, 12], peek: [320, 78, 18, 22],
+  expanded: [384, 112, 28, 34], prompt: [384, 132, 28, 34], home: [456, 136, 28, 34], drop: [456, 120, 28, 34],
 }[variant];
 ---
 
 <div class="mini" data-v={variant} style={`--w:${size[0]}px;--h:${size[1]}px;--shoulder:${size[2]}px;--r:${size[3]}px`}>
   <div class="body">
     {variant === "compact" && (
-      <div class="wings"><span class="l"><svg viewBox="0 0 16 16"><circle cx="8" cy="9" r="5.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 9V6.2M6.4 1.8h3.2" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></span><span class="cam"></span><span class="r">24:12</span></div>
+      <div class="wings"><span class="l"><i class="ring"></i></span><span class="cam"></span><span class="r"><b>24:12</b><i class="circle"><i class="art"></i></i></span></div>
     )}
     {variant === "peek" && (<>
       <div class="wings"><span class="l"><i class="art"></i></span><span class="cam"></span><span class="r"><span class="wave"><i></i><i></i><i></i><i></i></span></span></div>
@@ -20,23 +20,33 @@ const size = {
     </>)}
     {variant === "expanded" && (
       <div class="x">
-        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="hdr"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg></div>
         <div class="xrow"><span class="cap">WEATHER</span><span class="badge">Berlin</span></div>
         <div class="xbig">14°<small>Partly cloudy · H 16° L 9°</small></div>
       </div>
     )}
     {variant === "prompt" && (
       <div class="x">
-        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
+        <div class="hdr"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg></div>
         <div class="ask"><span class="ico"></span><span><b>Time for a break?</b><small>Break Reminder</small></span></div>
         <div class="btns"><span>In 10 Minutes</span><span class="on">Done</span></div>
       </div>
     )}
-    {variant === "switcher" && (
+    {variant === "home" && (
       <div class="x">
-        <div class="hdr"><span class="dots"><i></i><i></i><i></i></span></div>
-        <div class="xrow"><span class="cap">GITHUB</span><span class="badge blue">3 unread</span></div>
-        <div class="pg"><i></i><i class="on"></i><i></i><i></i></div>
+        <div class="hdr"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg></div>
+        <div class="tiles">
+          <span class="wide"><i class="art big"></i><span><b>Midnight Drive</b><small>Lumen Coast</small></span></span>
+          <span class="wide"><i class="ring big"></i><span><small>FOCUS</small><b class="o">24:12 left</b></span></span>
+        </div>
+      </div>
+    )}
+    {variant === "drop" && (
+      <div class="x">
+        <div class="hdr"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg></div>
+        <div class="zones">
+          <span class="on">Shelf · 1 file</span><span>AirDrop</span><span>Open With</span><span>Quick Look</span>
+        </div>
       </div>
     )}
   </div>
@@ -55,16 +65,15 @@ const size = {
   .wings .l, .wings .r { flex: 1; display: flex; justify-content: center; font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums; }
   .wings svg { width: 13px; height: 13px; }
   .cam { width: 184px; }
-  .art { display: block; width: 15px; height: 15px; border-radius: 3.3px; background: radial-gradient(circle at 50% 58%, #ffcf6e 0 19%, transparent 20%), linear-gradient(180deg, #ff8a3d, #e0453a 46%, #2a1a3a 47%, #14243d); }
+  .art { display: block; width: 15px; height: 15px; border-radius: 3.3px; background: radial-gradient(circle at 50% 62%, #ffd27a 0 17%, transparent 18%), linear-gradient(180deg, #6b2966 0%, #ed5c61 36%, #ff9e52 57%, #9e404c 58%, #4d1f3d 100%); }
   .wave { display: flex; gap: 2px; align-items: center; height: 14px; }
-  .wave i { width: 2px; height: 9px; border-radius: 2px; background: #ffa65c; animation: w 0.8s ease-in-out infinite alternate; }
+  .wave i { width: 2px; height: 9px; border-radius: 2px; background: #d47c6c; animation: w 0.8s ease-in-out infinite alternate; }
   .wave i:nth-child(2n) { animation-delay: -0.4s; }
   @keyframes w { from { height: 4px; } to { height: 12px; } }
   .peek { margin: 0; height: 46px; display: grid; place-items: center; font-size: 14px; font-weight: 600; color: rgb(255 255 255 / 0.65); }
   .x { display: flex; flex-direction: column; }
-  .hdr { height: 40px; padding: 0 24px; display: flex; align-items: center; }
-  .dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
-  .dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
+  .hdr { height: 40px; padding: 0 24px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; color: rgb(255 255 255 / 0.5); }
+  .hdr svg { width: 24px; height: 24px; padding: 6px; fill: none; stroke: currentColor; stroke-width: 1.3; }
   .xrow { display: flex; align-items: center; padding: 0 28px; }
   .cap { font-size: 11px; font-weight: 600; letter-spacing: 0.4px; color: rgb(255 255 255 / 0.55); }
   .badge { margin-left: auto; height: 20px; padding: 0 8px; border-radius: 999px; display: grid; place-items: center; font-size: 11px; font-weight: 600; background: rgb(255 255 255 / 0.12); }
@@ -78,8 +87,19 @@ const size = {
   .btns { display: flex; justify-content: flex-end; gap: 8px; padding: 14px 28px 0; }
   .btns span { height: 28px; padding: 0 12px; border-radius: 999px; display: grid; place-items: center; font-size: 13px; font-weight: 500; background: rgb(255 255 255 / 0.12); }
   .btns .on { background: #fff; color: #000; }
-  .pg { display: flex; justify-content: center; margin-top: 22px; }
-  .pg i { width: 28px; height: 24px; display: grid; place-items: center; }
-  .pg i::before { content: ""; width: 4px; height: 4px; border-radius: 4px; background: rgb(255 255 255 / 0.28); }
-  .pg i.on::before { width: 16px; background: rgb(255 255 255 / 0.9); }
+  .wings .r { gap: 5px; justify-content: flex-end; padding-right: 10px; }
+  .wings .l { justify-content: flex-start; padding-left: 10px; }
+  .wings b { font-weight: 600; color: rgb(255 158 77); }
+  .ring { display: block; width: 15px; height: 15px; border-radius: 50%; background: radial-gradient(closest-side, #000 calc(100% - 2.4px), transparent calc(100% - 1.9px)), conic-gradient(rgb(255 102 92), rgb(255 158 77) 22%, rgb(255 255 255 / 0.14) 0); }
+  .ring.big { width: 36px; height: 36px; background: radial-gradient(closest-side, #000 calc(100% - 4.5px), transparent calc(100% - 4px)), conic-gradient(rgb(255 102 92), rgb(255 158 77) 22%, rgb(255 255 255 / 0.14) 0); }
+  .circle { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; background: rgb(255 255 255 / 0.08); }
+  .circle .art { width: 11px; height: 11px; border-radius: 2.4px; }
+  .art.big { width: 40px; height: 40px; border-radius: 8.8px; }
+  .tiles, .zones { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 16px; }
+  .tiles > span { grid-column: span 2; height: 64px; border-radius: 14px; background: rgb(255 255 255 / 0.07); display: flex; align-items: center; gap: 10px; padding: 0 12px; }
+  .tiles > span > span { display: flex; flex-direction: column; gap: 2px; }
+  .tiles b { font-size: 13px; font-weight: 600; } .tiles small { font-size: 11px; color: rgb(255 255 255 / 0.5); }
+  .o { color: rgb(255 158 77); }
+  .zones span { height: 48px; border-radius: 14px; display: grid; place-items: center; font-size: 12px; font-weight: 500; color: rgb(255 255 255 / 0.5); background: rgb(255 255 255 / 0.06); outline: 1.5px dashed rgb(255 255 255 / 0.14); outline-offset: -1.5px; opacity: 0.6; }
+  .zones .on { color: rgb(255 158 77); background: rgb(255 158 77 / 0.2); outline: 1.5px solid rgb(255 158 77 / 0.9); opacity: 1; transform: scale(1.04); }
 </style>

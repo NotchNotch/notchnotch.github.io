@@ -11,7 +11,7 @@
         <span class="c-num" data-count>0</span>
       </div>
       <div class="c-expanded">
-        <div class="c-top"><span class="c-dots"><i></i><i></i><i></i></span></div>
+        <div class="c-top"><svg viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5" rx="1.3"/><rect x="9" y="2" width="5" height="5" rx="1.3"/><rect x="2" y="9" width="5" height="5" rx="1.3"/><rect x="9" y="9" width="5" height="5" rx="1.3"/></svg><svg viewBox="0 0 16 16"><circle cx="8" cy="8" r="2.4"/><path d="M6.9 1.6h2.2l.4 1.8 1.2.7 1.8-.6 1.1 1.9-1.4 1.2v1.4l1.4 1.2-1.1 1.9-1.8-.6-1.2.7-.4 1.8H6.9l-.4-1.8-1.2-.7-1.8.6-1.1-1.9 1.4-1.2V6.6L2.4 5.4l1.1-1.9 1.8.6 1.2-.7.4-1.8Z" stroke-linejoin="round"/></svg></div>
         <span class="c-title"><span data-count>0</span> little <span data-noun>steps</span></span>
         <button type="button" class="c-button" data-more>One more</button>
       </div>
@@ -65,9 +65,8 @@
   .c-expanded { inset: 0; width: 384px; display: flex; flex-direction: column; gap: 14px; opacity: 0; filter: blur(5px); transform: translateY(-6px) scale(0.96); transform-origin: top; pointer-events: none; }
   [data-open="true"] .c-compact { opacity: 0; filter: blur(3px); transition-duration: 0.13s; }
   [data-open="true"] .c-expanded { opacity: 1; filter: none; transform: none; pointer-events: auto; transition-delay: 0.07s; }
-  .c-top { height: 26px; padding: 0 24px; display: flex; align-items: flex-end; margin-bottom: -6px; }
-  .c-dots { width: 30px; display: flex; gap: 3px; justify-content: center; }
-  .c-dots i { width: 3.4px; height: 3.4px; border-radius: 50%; background: rgb(255 255 255 / 0.45); }
+  .c-top { height: 40px; padding: 0 24px; display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: -14px; }
+  .c-top svg { width: 24px; height: 24px; padding: 6px; fill: none; stroke: rgb(255 255 255 / 0.5); stroke-width: 1.3; }
   .c-title { padding: 0 28px; font-size: 19px; font-weight: 600; letter-spacing: -0.2px; font-variant-numeric: tabular-nums; }
   .c-title span { display: inline-block; }
   .c-button {
