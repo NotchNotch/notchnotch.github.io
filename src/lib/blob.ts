@@ -12,13 +12,16 @@ function place(group: HTMLElement, target: Element | null) {
   if (!target || !(target as HTMLElement).offsetParent) { blob.style.setProperty("--bo", "0"); return; }
   const outer = group.getBoundingClientRect();
   const rect = target.getBoundingClientRect();
+  // Measured while an ancestor is scaled (a panel opening at 0.97), rects
+  // shrink with it; divide it out so the blob fits once the scale ends.
+  const scale = group.offsetWidth ? outer.width / group.offsetWidth : 1;
   const first = blob.style.getPropertyValue("--bo") !== "1";
   // Appearing from nothing: jump into place, then let later moves slide.
   if (first) group.classList.add("blob-instant");
-  blob.style.setProperty("--bx", `${rect.left - outer.left + group.scrollLeft}px`);
-  blob.style.setProperty("--by", `${rect.top - outer.top + group.scrollTop}px`);
-  blob.style.setProperty("--bw", `${rect.width}px`);
-  blob.style.setProperty("--bh", `${rect.height}px`);
+  blob.style.setProperty("--bx", `${(rect.left - outer.left) / scale + group.scrollLeft}px`);
+  blob.style.setProperty("--by", `${(rect.top - outer.top) / scale + group.scrollTop}px`);
+  blob.style.setProperty("--bw", `${rect.width / scale}px`);
+  blob.style.setProperty("--bh", `${rect.height / scale}px`);
   blob.style.setProperty("--bo", "1");
   if (first) requestAnimationFrame(() => requestAnimationFrame(() => group.classList.remove("blob-instant")));
 }
